@@ -1,4 +1,4 @@
-import 'package:barg_user_app/screen/main_screen/home_screen/store/menu_screen.dart';
+import 'package:barg_user_app/screen/main_screen/home_screen/search_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/color.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +21,20 @@ class FavoriteScreen extends State<FavariteScreen> {
         ),
         title: AutoText(
           color: Colors.black,
-          fontSize: 16,
-          fontWeight: null,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
           text: 'Favorite',
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (BuildContext context) {
+                  return SearchScreen();
+                }));
+              },
               icon: Icon(
                 Icons.search,
                 color: Colors.black,
@@ -47,10 +52,10 @@ class FavoriteScreen extends State<FavariteScreen> {
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return MenuScreen();
-                    }));
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (BuildContext context) {
+                    //   return MenuScreen(store_id: '',);
+                    // }));
                   },
                   child: Container(
                     margin: EdgeInsets.symmetric(vertical: 1),

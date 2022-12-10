@@ -1,4 +1,4 @@
-import 'package:barg_user_app/screen/main_screen/cart%20_screen.dart';
+import 'package:barg_user_app/screen/main_screen/cart_screen/cart%20_screen.dart';
 import 'package:barg_user_app/screen/main_screen/favorite_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/home_screen.dart';
 import 'package:barg_user_app/screen/main_screen/order_screen/orders_screen.dart';

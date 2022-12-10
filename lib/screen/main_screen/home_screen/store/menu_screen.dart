@@ -1,15 +1,45 @@
+// ignore_for_file: must_be_immutable
+
+import 'dart:convert';
+import 'package:barg_user_app/widget/color.dart';
+import 'package:http/http.dart' as http;
+import 'package:barg_user_app/ipcon.dart';
+import 'package:barg_user_app/screen/main_screen/home_screen/search_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/store/detail_store_screen.dart';
+import 'package:barg_user_app/screen/main_screen/home_screen/store/menu_detail_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class MenuScreen extends StatefulWidget {
-  MenuScreen({Key? key}) : super(key: key);
+  String? store_id;
+  String? store_image;
+  String? store_name;
+  MenuScreen(
+      {required this.store_id,
+      required this.store_image,
+      required this.store_name});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+  List foodList = [];
+  get_menu() async {
+    final response =
+        await http.get(Uri.parse("$ipcon/get_menu_user/${widget.store_id}"));
+    var data = json.decode(response.body);
+    setState(() {
+      foodList = data;
+    });
+  }
+
+  @override
+  void initState() {
+    get_menu();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -84,7 +114,12 @@ class _MenuScreenState extends State<MenuScreen> {
                     Icons.search,
                     color: Colors.black,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (BuildContext context) {
+                      return SearchScreen();
+                    }));
+                  },
                 ),
               ),
               SizedBox(width: width * 0.02),
@@ -109,8 +144,8 @@ class _MenuScreenState extends State<MenuScreen> {
         ],
       ),
       flexibleSpace: FlexibleSpaceBar(
-        background: Image.asset(
-          "assets/images/test2.jpg",
+        background: Image.network(
+          '$path_img/store/${widget.store_image}',
           fit: BoxFit.cover,
         ),
         stretchModes: [
@@ -129,7 +164,7 @@ class _MenuScreenState extends State<MenuScreen> {
         Padding(
           padding: EdgeInsets.only(top: height * 0.02, left: width * 0.03),
           child: AutoText(
-            text: "ก๋วยเตี๋ยวเรือรังสิต",
+            text: "${widget.store_name}",
             fontSize: 20,
             color: Colors.black,
             fontWeight: null,
@@ -196,78 +231,90 @@ class _MenuScreenState extends State<MenuScreen> {
     return Expanded(
       child: ListView.builder(
         padding: EdgeInsets.zero,
+        shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
-        itemCount: 20,
+        itemCount: foodList.length,
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            margin: EdgeInsets.symmetric(vertical: 1),
-            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 0.1,
-                  spreadRadius: 0.1,
-                  offset: Offset(0, 1),
+          return GestureDetector(
+            onTap: (() {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return MenuDetailScreen(
+                  food_image: '${foodList[index]['food_image']}',
+                  food_name: '${foodList[index]['food_name']}',
+                  food_id: '${foodList[index]['food_id']}',
+                  store_id: '${widget.store_id}',
+                  price: '${foodList[index]['price']}',
+                );
+              }));
+            }),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: width * 0.05),
+              decoration: BoxDecoration(
+                  border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.shade200,
+                  width: 1,
                 ),
-              ],
-            ),
-            width: width,
-            height: height * 0.14,
-            child: Row(
-              children: [
-                Container(
-                  width: width * 0.24,
-                  height: height * 0.11,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage('assets/images/test2.jpg'),
+              )),
+              width: width,
+              height: height * 0.14,
+              child: Row(
+                children: [
+                  Container(
+                    width: width * 0.24,
+                    height: height * 0.11,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: NetworkImage(
+                            '$path_img/food/${foodList[index]['food_image']}'),
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  width: width * 0.66,
-                  height: height * 0.09,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: width * 0.04),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AutoText(
-                              text: "ก๋วยเตี๋ยวน้ำตกหมู",
-                              fontSize: 15,
-                              color: Colors.black,
-                              fontWeight: null,
-                            ),
-                            AutoText(
-                              text: "40 ฿",
-                              fontSize: 15,
-                              color: Colors.green,
-                              fontWeight: null,
-                            ),
-                          ],
+                  Container(
+                    width: width * 0.66,
+                    height: height * 0.09,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          margin:
+                              EdgeInsets.symmetric(horizontal: width * 0.04),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AutoText(
+                                text: "${foodList[index]['food_name']}",
+                                fontSize: 15,
+                                color: Colors.black,
+                                fontWeight: null,
+                              ),
+                              AutoText(
+                                text: "${foodList[index]['price']} ฿",
+                                fontSize: 15,
+                                color: blue,
+                                fontWeight: null,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Image.asset(
-                            "assets/images/add.png",
-                            width: width * 0.06,
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Image.asset(
+                              "assets/images/add.png",
+                              width: width * 0.06,
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           );
         },

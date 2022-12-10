@@ -22,8 +22,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
         appBar: AppBar(
           title: AutoText(
             color: Colors.black,
-            fontSize: 16,
-            fontWeight: null,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
             text: 'Order History',
           ),
           backgroundColor: Colors.white,

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/profile_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/store/menu_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/search_screen.dart';
@@ -13,6 +16,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List storeList = [];
+  get_store() async {
+    final response = await http.get(Uri.parse("$ipcon/get_all_store"));
+    var data = json.decode(response.body);
+    setState(() {
+      storeList = data;
+    });
+  }
+
+  @override
+  void initState() {
+    get_store();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -138,20 +156,24 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisCount: 2,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10),
-          itemCount: 100,
+          itemCount: storeList.length,
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
               onTap: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (BuildContext context) {
-                  return MenuScreen();
+                  return MenuScreen(
+                    store_id: '${storeList[index]['store_id']}',
+                    store_image: '${storeList[index]['store_image']}',
+                    store_name: '${storeList[index]['store_name']}',
+                  );
                 }));
               },
               child: Container(
                 margin: EdgeInsets.symmetric(horizontal: width * 0.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(5),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black12,
@@ -170,17 +192,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: height * 0.19,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
                           ),
                           image: DecorationImage(
                               fit: BoxFit.cover,
-                              image: AssetImage('assets/images/test1.jpg'))),
+                              image: NetworkImage(
+                                  '$path_img/store/${storeList[index]['store_image']}'))),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: AutoText2(
-                        text: "ก๋วยเตี๋ยวเรืออยุทยา",
+                        text: "${storeList[index]['store_name']}",
                         fontSize: 14,
                         color: Colors.black,
                         fontWeight: null,

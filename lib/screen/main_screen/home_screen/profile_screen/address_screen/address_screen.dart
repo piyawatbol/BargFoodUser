@@ -1,4 +1,6 @@
+import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/address_screen/add_address_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
+import 'package:barg_user_app/widget/color.dart';
 import 'package:flutter/material.dart';
 
 class AddressScreen extends StatefulWidget {
@@ -51,6 +53,16 @@ class _AddressScreenState extends State<AddressScreen> {
             )
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: blue,
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return AddAddressScreen();
+          }));
+        },
       ),
     );
   }

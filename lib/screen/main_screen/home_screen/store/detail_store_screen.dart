@@ -1,4 +1,3 @@
-
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
@@ -32,17 +31,27 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
       body: Container(
         width: width,
         height: height,
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.all(10),
-              width: width,
-              height: height * 0.2,
-              decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(10)),
-            )
-          ],
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(vertical: height * 0.02),
+                width: width,
+                height: height * 0.2,
+                decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: 'ก๋วยเตี๋ยวเรือรังสิต',
+              ),
+            ],
+          ),
         ),
       ),
     );
