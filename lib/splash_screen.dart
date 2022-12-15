@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
       nextScreen:
           user_id == null || user_id == '' ? LoginScreen() : TabScreen(),
-      splashIconSize: 200,
+      splashIconSize: 250,
       backgroundColor: Color(0xff85BFF4),
       duration: 2000,
       splashTransition: SplashTransition.fadeTransition,

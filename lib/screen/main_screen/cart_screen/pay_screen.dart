@@ -1,13 +1,13 @@
 // ignore_for_file: must_be_immutable
-
 import 'dart:convert';
-import 'package:barg_user_app/screen/main_screen/status_screen/status_screen.dart';
+import 'package:barg_user_app/screen/main_screen/cart_screen/status_screen/status_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/loadingPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PayScreen extends StatefulWidget {
   List? cartList;
@@ -20,6 +20,8 @@ class PayScreen extends StatefulWidget {
 
 class _PayScreenState extends State<PayScreen> {
   bool statusLoading = false;
+  String? user_id;
+  int? id;
 
   add_request() async {
     String order_id = DateFormat('yMdHms').format(DateTime.now());
@@ -37,13 +39,14 @@ class _PayScreenState extends State<PayScreen> {
       }),
     );
     if (response.statusCode == 200) {
+      await get_request_id();
       add_order(order_id);
     }
   }
 
   add_order(order_id) async {
     for (var i = 0; i < widget.cartList!.length; i++) {
-      final response = await http.post(
+      await http.post(
         Uri.parse('$ipcon/add_order'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -58,13 +61,36 @@ class _PayScreenState extends State<PayScreen> {
         }),
       );
     }
+    delete_cart();
     setState(() {
       statusLoading = false;
     });
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (BuildContext context) {
-      return StatusScreen();
+      return StatusScreen(
+        requset_id: '$id',
+      );
     }));
+  }
+
+  get_request_id() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+    final response =
+        await http.get(Uri.parse("$ipcon/get_request_id/$user_id"));
+    var data = json.decode(response.body);
+    id = data[0]['request_id'];
+    print(id);
+  }
+
+  delete_cart() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+    await http.delete(Uri.parse("$ipcon/delete_cart/$user_id"));
   }
 
   @override
@@ -78,6 +104,8 @@ class _PayScreenState extends State<PayScreen> {
     super.initState();
   }
 
+  List cartList = [];
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -85,6 +113,7 @@ class _PayScreenState extends State<PayScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
         elevation: 0,
         backgroundColor: Colors.white,
         title: AutoText(

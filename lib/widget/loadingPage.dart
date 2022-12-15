@@ -16,37 +16,30 @@ class _LoadingPageState extends State<LoadingPage> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onDoubleTap: () {
-        setState(() {
-          widget.statusLoading = false;
-        });
-      },
-      child: Visibility(
-        visible: widget.statusLoading == true ? true : false,
-        child: Center(
-          child: Stack(
-            alignment: AlignmentDirectional.center,
-            children: [
-              Container(
-                width: width,
-                height: height,
-                color: Colors.white10,
-              ),
-              Positioned(
-                child: Container(
-                  width: width * 0.25,
-                  height: height * 0.12,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: SpinKitFadingCircle(
-                    color: Color(0xFF398AE5),
-                  ),
+    return Visibility(
+      visible: widget.statusLoading == true ? true : false,
+      child: Center(
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          children: [
+            Container(
+              width: width,
+              height: height,
+              color: Colors.white10,
+            ),
+            Positioned(
+              child: Container(
+                width: width * 0.25,
+                height: height * 0.12,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15)),
+                child: SpinKitFadingCircle(
+                  color: Color(0xFF398AE5),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

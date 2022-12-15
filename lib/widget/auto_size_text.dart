@@ -65,7 +65,7 @@ class _AutoText2State extends State<AutoText2> {
       child: AutoSizeText(
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
-        minFontSize: 14,
+        minFontSize: 12,
         "${widget.text}",
         style: GoogleFonts.openSans(
           textStyle: TextStyle(

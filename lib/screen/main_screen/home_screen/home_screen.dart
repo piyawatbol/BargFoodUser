@@ -20,9 +20,11 @@ class _HomeScreenState extends State<HomeScreen> {
   get_store() async {
     final response = await http.get(Uri.parse("$ipcon/get_all_store"));
     var data = json.decode(response.body);
-    setState(() {
-      storeList = data;
-    });
+    if (this.mounted) {
+      setState(() {
+        storeList = data;
+      });
+    }
   }
 
   @override

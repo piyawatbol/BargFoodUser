@@ -17,9 +17,7 @@ class _TabScreenState extends State<TabScreen> {
     HomeScreen(),
     OrdersScreen(),
     CartScreen(),
-    FavariteScreen(
-    
-    )
+    FavariteScreen()
   ];
 
   @override
