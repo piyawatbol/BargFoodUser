@@ -10,14 +10,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui' as ui;
 
-class AddAddressScreen extends StatefulWidget {
-  AddAddressScreen({Key? key}) : super(key: key);
+class EditAddressScreen extends StatefulWidget {
+  EditAddressScreen({Key? key}) : super(key: key);
 
   @override
-  State<AddAddressScreen> createState() => _AddAddressScreenState();
+  State<EditAddressScreen> createState() => _EditAddressScreenState();
 }
 
-class _AddAddressScreenState extends State<AddAddressScreen> {
+class _EditAddressScreenState extends State<EditAddressScreen> {
   TextEditingController house_number = TextEditingController();
   TextEditingController county = TextEditingController();
   TextEditingController district = TextEditingController();
@@ -101,7 +101,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         backgroundColor: blue,
         elevation: 0.2,
         title: AutoText(
-          text: "Add My Address",
+          text: "Edit My Address",
           fontSize: 16,
           color: Colors.white,
           fontWeight: FontWeight.bold,

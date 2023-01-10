@@ -4,7 +4,6 @@ import 'package:barg_user_app/screen/main_screen/home_screen/store/menu_screen.d
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
-import 'package:barg_user_app/screen/main_screen/home_screen/search_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/color.dart';
 import 'package:flutter/material.dart';
@@ -143,19 +142,6 @@ class FavoriteScreen extends State<FavariteScreen> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return SearchScreen();
-                }));
-              },
-              icon: Icon(
-                Icons.search,
-                color: Colors.black,
-              ))
-        ],
       ),
       body: storeList.isEmpty
           ? Center(child: CircularProgressIndicator())

@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:barg_user_app/screen/main_screen/cart_screen/edit_menu_screen.dart';
 import 'package:barg_user_app/screen/main_screen/cart_screen/pay_screen.dart';
+import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/edit_proflile_screen.dart';
+import 'package:barg_user_app/widget/loadingPage.dart';
 import 'package:barg_user_app/widget/toast_custom.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
@@ -29,6 +33,9 @@ class _CartScreenState extends State<CartScreen> {
   double? delivery_fee;
   double? total;
   List userList = [];
+  bool statusLoading = false;
+  List foodList = [];
+  int amount = 1;
 
   get_user() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -122,6 +129,20 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
+  get_menu_one(String? food_id) async {
+    setState(() {
+      statusLoading = true;
+    });
+    final response = await http.get(Uri.parse("$ipcon/get_menu_one/$food_id"));
+    var data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      setState(() {
+        statusLoading = false;
+        foodList = data;
+      });
+    }
+  }
+
   @override
   void initState() {
     get_user();
@@ -160,47 +181,53 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   ),
                 )
-              : Container(
-                  width: width,
-                  height: height,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildText("Delivery info"),
-                        buildAddress(),
-                        buildText("Contact info"),
-                        buildContactInfo(),
-                        SizedBox(height: height * 0.02),
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: height * 0.01),
-                          height: 5,
-                          color: Colors.grey.shade100,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              : Stack(
+                  children: [
+                    Container(
+                      width: width,
+                      height: height,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildText('My Order'),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.03),
-                              child: AutoText(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                text: '${cartList[0]['store_name']}',
-                              ),
+                            buildText("Delivery info"),
+                            buildAddress(),
+                            buildText("Contact info"),
+                            buildContactInfo(),
+                            SizedBox(height: height * 0.02),
+                            Container(
+                              margin:
+                                  EdgeInsets.symmetric(vertical: height * 0.01),
+                              height: 5,
+                              color: Colors.grey.shade100,
                             ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                buildText('My Order'),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.03),
+                                  child: AutoText(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    text: '${cartList[0]['store_name']}',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            buildListOrder(),
+                            SizedBox(height: height * 0.015),
+                            buildPayMedthod(),
+                            buildTotal(),
+                            buildButtonOrderNow()
                           ],
                         ),
-                        buildListOrder(),
-                        SizedBox(height: height * 0.015),
-                        buildPayMedthod(),
-                        buildTotal(),
-                        buildButtonOrderNow()
-                      ],
+                      ),
                     ),
-                  ),
+                    LoadingPage(statusLoading: statusLoading)
+                  ],
                 ),
     );
   }
@@ -264,38 +291,57 @@ class _CartScreenState extends State<CartScreen> {
   Widget buildContactInfo() {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Container(
-      padding: EdgeInsets.all(10),
-      width: width,
-      height: height * 0.05,
-      margin: EdgeInsets.symmetric(horizontal: width * 0.05),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(2),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 1,
-            spreadRadius: 1,
-            offset: Offset(0, 0),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return EditProfileScreen(
+                email: '${userList[0]['email']}',
+                firstname: '${userList[0]['first_name']}',
+                img: '${userList[0]['user_image']}',
+                lastname: '${userList[0]['last_name']}',
+                phone: '${userList[0]['phone']}',
+                user_id: '${userList[0]['user_id']}',
+              );
+            },
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.phone,
-            color: blue,
-          ),
-          SizedBox(width: width * 0.02),
-          AutoText(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: null,
-            text: '${userList[0]['phone']}',
-          ),
-        ],
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(10),
+        width: width,
+        height: height * 0.05,
+        margin: EdgeInsets.symmetric(horizontal: width * 0.05),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(2),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 1,
+              spreadRadius: 1,
+              offset: Offset(0, 0),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.phone,
+              color: blue,
+            ),
+            SizedBox(width: width * 0.02),
+            AutoText(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: null,
+              text: '${userList[0]['phone']}',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -310,70 +356,119 @@ class _CartScreenState extends State<CartScreen> {
         physics: NeverScrollableScrollPhysics(),
         itemCount: cartList.length,
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            margin: EdgeInsets.symmetric(horizontal: width * 0.045),
-            width: width,
-            height: height * 0.08,
-            decoration: BoxDecoration(
-                border: Border(
-              bottom: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
-              ),
-            )),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Slidable(
+            endActionPane: ActionPane(
+              motion: StretchMotion(),
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: width * 0.07,
-                      height: height * 0.035,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 1,
-                            spreadRadius: 1,
-                            offset: Offset(0, 0),
+                SlidableAction(
+                  foregroundColor: Colors.white,
+                  backgroundColor: blue,
+                  icon: Icons.edit,
+                  label: 'edit',
+                  onPressed: (context) async {
+                    await get_menu_one(cartList[index]['food_id'].toString());
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (BuildContext context) {
+                      return EditMenuScreen(
+                        food_image: "${foodList[0]['food_image']}",
+                        food_name: "${foodList[0]['food_name']}",
+                        food_id: "${foodList[0]['food_id']}",
+                        store_id: "${foodList[0]['store_id']}",
+                        price: "${foodList[0]['price']}",
+                        amount: int.parse(cartList[index]['amount'].toString()),
+                        detaill: '${cartList[index]['detail']}',
+                        cart_id: '${cartList[index]['cart_id']}}',
+                      );
+                    })).then((value) => get_cart());
+                  },
+                ),
+                SlidableAction(
+                  backgroundColor: Colors.red,
+                  icon: Icons.delete,
+                  label: 'delete',
+                  onPressed: (context) {
+                    _showModalBottomSheet();
+                  },
+                )
+              ],
+            ),
+            child:
+                LayoutBuilder(builder: (contextFromLayoutBuilder, constraints) {
+              return GestureDetector(
+                onTap: () {
+                  final slidable = Slidable.of(contextFromLayoutBuilder);
+                  slidable?.openEndActionPane(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.decelerate,
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: width * 0.045),
+                  width: width,
+                  height: height * 0.08,
+                  decoration: BoxDecoration(
+                      border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey.shade200,
+                      width: 1,
+                    ),
+                  )),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: width * 0.07,
+                            height: height * 0.035,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 1,
+                                  spreadRadius: 1,
+                                  offset: Offset(0, 0),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text("${cartList[index]['amount']}"),
+                            ),
+                          ),
+                          SizedBox(width: width * 0.035),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AutoText(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                text: '${cartList[index]['food_name']}',
+                              ),
+                              AutoText(
+                                color: Colors.black38,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                text: '${cartList[index]['detail']}',
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: Text("${cartList[index]['amount']}"),
+                      AutoText(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        text: '${cartList[index]['price']} ฿',
                       ),
-                    ),
-                    SizedBox(width: width * 0.035),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AutoText(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          text: '${cartList[index]['food_name']}',
-                        ),
-                        AutoText(
-                          color: Colors.black38,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          text: '${cartList[index]['detail']}',
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                AutoText(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  text: '${cartList[index]['price']} ฿',
-                ),
-              ],
-            ),
+              );
+            }),
           );
         },
       ),
@@ -570,6 +665,105 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget buildButtonOk() {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: height * 0.01),
+          width: width * 0.9,
+          height: height * 0.05,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black87,
+              backgroundColor: blue,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+            ),
+            onPressed: () {},
+            child: Center(
+              child: AutoText(
+                color: Colors.white,
+                fontSize: 14,
+                text: 'Ok',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildButtonCancel() {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: width * 0.9,
+          height: height * 0.05,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black87,
+              backgroundColor: Colors.white,
+              side: BorderSide(color: Colors.black, width: 1),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Center(
+              child: AutoText(
+                color: Colors.black,
+                fontSize: 14,
+                text: 'Cancel',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showModalBottomSheet() {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) {
+        return Container(
+          width: width,
+          height: height * 0.25,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                text: 'Do you want to delete?',
+                fontWeight: FontWeight.bold,
+              ),
+              Column(
+                children: [
+                  buildButtonOk(),
+                  buildButtonCancel(),
+                ],
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }
