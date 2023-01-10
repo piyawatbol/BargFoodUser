@@ -7,7 +7,6 @@ import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/change_email_phone/check_pass_email_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/change_email_phone/check_pass_phone_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
-import 'package:barg_user_app/widget/back_button.dart';
 import 'package:barg_user_app/widget/color.dart';
 import 'package:barg_user_app/widget/loadingPage.dart';
 import 'package:barg_user_app/widget/show_modol_img.dart';
@@ -127,18 +126,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: blue,
+          elevation: 0,
+          title: AutoText(
+            text: "Edit Profile",
+            fontSize: 16,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          iconTheme: IconThemeData(
+            color: Colors.white,
+          ),
+          actions: [],
+        ),
+        backgroundColor: Colors.white,
         body: Stack(
           children: [
             Container(
               width: width,
               height: height,
-              color: blue,
               child: SingleChildScrollView(
                 child: SafeArea(
                     child: Column(
                   children: [
-                    BackArrowButton(text: "Edit Profile", width2: 0.24),
-                    SizedBox(height: height * 0.02),
+                    SizedBox(height: height * 0.04),
                     buildProfileIcon(),
                     SizedBox(height: height * 0.03),
                     Padding(
@@ -149,7 +161,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           AutoText(
                               text: "My Profile",
                               fontSize: 28,
-                              color: Colors.white,
+                              color: Colors.black,
                               fontWeight: FontWeight.bold),
                         ],
                       ),
@@ -196,29 +208,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Positioned(
           bottom: 0,
           right: 0,
-          child: CircleAvatar(
-              radius: width * 0.055,
-              backgroundColor: Colors.white,
-              child: IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                      barrierColor: Colors.black26,
-                      context: this.context,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(30),
-                        ),
-                      ),
-                      builder: (context) {
-                        return ShowMoDalImg(
-                            pickCamera: pickCamera, pickImage: pickImage);
-                      });
-                },
-                icon: Icon(
-                  Icons.photo,
-                  color: Colors.black,
+          child: Container(
+            padding: EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 0.1,
+                  blurRadius: 0.4,
+                  offset: Offset(0, 0),
                 ),
-              )),
+              ],
+            ),
+            child: GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                    barrierColor: Colors.black26,
+                    context: this.context,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(30),
+                      ),
+                    ),
+                    builder: (context) {
+                      return ShowMoDalImg(
+                          pickCamera: pickCamera, pickImage: pickImage);
+                    });
+              },
+              child: Icon(
+                Icons.camera_alt,
+                color: Colors.black,
+                size: width * 0.07,
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -234,19 +259,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AutoText(
-              text: text,
-              fontSize: 14,
-              color: Colors.white,
-              fontWeight: FontWeight.w600),
+            text: text,
+            fontSize: 14,
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
           Container(
             margin: EdgeInsets.symmetric(vertical: height * 0.002),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 4,
-                  offset: Offset(2, 4),
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 1,
+                  offset: Offset(0, 0),
                 ),
               ],
             ),
@@ -308,9 +334,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 4,
-                  offset: Offset(2, 4),
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 1,
+                  offset: Offset(0, 0),
                 ),
               ],
             ),
@@ -355,8 +381,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       margin: EdgeInsets.symmetric(vertical: height * 0.05),
       width: width * 0.3,
       height: height * 0.05,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 1,
+            offset: Offset(0, 0),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
+          elevation: 0,
           foregroundColor: Colors.black87,
           backgroundColor: Colors.white,
           shape: const RoundedRectangleBorder(
@@ -379,7 +416,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         },
         child: Center(
           child: AutoText(
-            color: Color(0xFF527DAA),
+            color: Colors.black,
             fontSize: 14,
             text: 'Save',
             fontWeight: FontWeight.bold,

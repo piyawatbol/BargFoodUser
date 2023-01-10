@@ -249,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       icon: Icon(
                         Icons.visibility_off,
-                        color: Colors.white,
+                        color: blue,
                       ))
                   : IconButton(
                       onPressed: () {
@@ -259,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       icon: Icon(
                         Icons.visibility,
-                        color: Colors.white,
+                        color: blue,
                       ),
                     ),
               hintText: "Enter your Password",

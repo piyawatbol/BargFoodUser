@@ -1,4 +1,5 @@
 import 'package:barg_user_app/widget/auto_size_text.dart';
+import 'package:barg_user_app/widget/color.dart';
 import 'package:flutter/material.dart';
 
 class AddAddressScreen extends StatefulWidget {
@@ -15,16 +16,16 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: blue,
         elevation: 0.2,
         title: AutoText(
           text: "Add My Address",
           fontSize: 16,
-          color: Colors.black,
-          fontWeight: null,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
         iconTheme: IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
       body: Container(

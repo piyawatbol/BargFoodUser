@@ -38,7 +38,7 @@ class _CheckPhoneScreenState extends State<CheckPhoneScreen> {
       },
       body: jsonEncode(<String, String>{
         'phone': phone.text,
-        'status_id': '2',
+        'status_id': '1',
       }),
     );
     var data = json.decode(response.body);
@@ -93,23 +93,25 @@ class _CheckPhoneScreenState extends State<CheckPhoneScreen> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: blue,
+        elevation: 0,
+        title: AutoText(
+          text: "Check Password",
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        actions: [],
+      ),
       body: Stack(
         children: [
           Container(
             width: width,
             height: height,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF73AEF5),
-                  Color(0xFF61A4F1),
-                  Color(0xFF478De0),
-                  Color(0xFF398AE5)
-                ],
-              ),
-            ),
             child: SafeArea(
               child: SingleChildScrollView(
                 child: Column(
@@ -120,7 +122,7 @@ class _CheckPhoneScreenState extends State<CheckPhoneScreen> {
                       child: AutoText(
                         text: "Enter New Phone",
                         fontSize: 30,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -148,7 +150,7 @@ class _CheckPhoneScreenState extends State<CheckPhoneScreen> {
           AutoText(
             text: "Phone",
             fontSize: 14,
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: null,
           ),
           SizedBox(height: height * 0.004),
@@ -167,17 +169,17 @@ class _CheckPhoneScreenState extends State<CheckPhoneScreen> {
             child: TextFormField(
               controller: phone,
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
               ),
               decoration: InputDecoration(
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.only(top: 14),
                   prefixIcon: Icon(
                     Icons.key,
-                    color: blue,
+                    color: Colors.black,
                   ),
                   hintText: "Enter your New Phone",
-                  hintStyle: TextStyle(color: blue)),
+                  hintStyle: TextStyle(color: Colors.black)),
             ),
           )
         ],
@@ -209,7 +211,7 @@ class _CheckPhoneScreenState extends State<CheckPhoneScreen> {
         },
         child: Center(
           child: AutoText(
-            color: blue,
+            color: Colors.black,
             fontSize: 24,
             text: 'Continue',
             fontWeight: FontWeight.bold,

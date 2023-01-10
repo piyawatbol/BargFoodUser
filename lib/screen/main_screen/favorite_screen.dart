@@ -187,131 +187,133 @@ class FavoriteScreen extends State<FavariteScreen> {
                   index,
                   double.parse(storeList[index]['store_lat'].toString()),
                   double.parse(storeList[index]['store_long'].toString()));
-
-              return GestureDetector(
-                onTap: () {
-                  if (delivery_feeList.isNotEmpty && distanceList.isNotEmpty) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return MenuScreen(
-                          store_id: '${storeList[index]['store_id']}',
-                          store_image: '${storeList[index]['store_image']}',
-                          store_name: '${storeList[index]['store_name']}',
-                          delivery_fee: '${delivery_feeList[index]}',
-                          distance: '${distanceList[index]}',
-                          star: "${rateList[index]}");
-                    })).then((value) => get_fav());
-                  }
-                },
-                child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 1),
-                  width: width,
-                  height: height * 0.15,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 0.1,
-                        spreadRadius: 0.1,
-                        offset: Offset(0, 0),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: width * 0.04, vertical: height * 0.02),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: width * 0.25,
-                          height: height * 0.2,
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(
-                                  "$path_img/store/${storeList[index]['store_image']}"),
+              return rateList.length != storeList.length
+                  ? Container()
+                  : GestureDetector(
+                      onTap: () {
+                        if (delivery_feeList.isNotEmpty &&
+                            distanceList.isNotEmpty) {
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (BuildContext context) {
+                            return MenuScreen(
+                                store_id: '${storeList[index]['store_id']}',
+                                store_image:
+                                    '${storeList[index]['store_image']}',
+                                store_name: '${storeList[index]['store_name']}',
+                                delivery_fee: '${delivery_feeList[index]}',
+                                distance: '${distanceList[index]}',
+                                star: "${rateList[index]}");
+                          })).then((value) => get_fav());
+                        }
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 1),
+                        width: width,
+                        height: height * 0.15,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 0.1,
+                              spreadRadius: 0.1,
+                              offset: Offset(0, 0),
                             ),
-                          ),
+                          ],
                         ),
-                        Padding(
+                        child: Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: height * 0.01,
-                              horizontal: width * 0.04),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                              horizontal: width * 0.04,
+                              vertical: height * 0.02),
+                          child: Row(
                             children: [
-                              AutoText(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                text: '${storeList[index]['store_name']}',
-                              ),
-                              Row(
-                                children: [
-                                  Image.asset(
-                                    "assets/images/star.png",
-                                    width: width * 0.03,
-                                    height: height * 0.02,
-                                    color: Colors.yellow.shade800,
-                                  ),
-                                  SizedBox(width: width * 0.015),
-                                  rateList.isEmpty
-                                      ? Text("...")
-                                      : rateList[index] == null ||
-                                              rateList[index] == ''
-                                          ? Text("")
-                                          : AutoText(
-                                              text: "${rateList[index]}",
-                                              fontSize: 14,
-                                              color: Colors.grey.shade600,
-                                              fontWeight: null,
-                                            ),
-                                ],
-                              ),
                               Container(
-                                padding: EdgeInsets.all(1),
+                                width: width * 0.25,
+                                height: height * 0.2,
                                 decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(3)),
-                                child: Row(
+                                  color: Colors.grey,
+                                  borderRadius: BorderRadius.circular(8),
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(
+                                        "$path_img/store/${storeList[index]['store_image']}"),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: height * 0.01,
+                                    horizontal: width * 0.04),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Image.asset(
-                                      "assets/images/fast-delivery.png",
-                                      width: width * 0.041,
-                                      height: height * 0.025,
-                                      color: Colors.grey.shade600,
+                                    AutoText(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      text: '${storeList[index]['store_name']}',
                                     ),
-                                    SizedBox(width: 3),
+                                    Row(
+                                      children: [
+                                        Image.asset(
+                                          "assets/images/star.png",
+                                          width: width * 0.03,
+                                          height: height * 0.02,
+                                          color: Colors.yellow.shade800,
+                                        ),
+                                        SizedBox(width: width * 0.015),
+                                        rateList.isEmpty
+                                            ? Text("...")
+                                            : AutoText(
+                                                text: "${rateList[index]}",
+                                                fontSize: 14,
+                                                color: Colors.grey.shade600,
+                                                fontWeight: null,
+                                              ),
+                                      ],
+                                    ),
                                     Container(
-                                      padding: EdgeInsets.all(2),
+                                      padding: EdgeInsets.all(1),
                                       decoration: BoxDecoration(
-                                          color: blue,
+                                          color: Colors.grey.shade300,
                                           borderRadius:
                                               BorderRadius.circular(3)),
-                                      child: delivery_feeList.isEmpty
-                                          ? Text("...")
-                                          : AutoText(
-                                              text:
-                                                  "${delivery_feeList[index]} ฿",
-                                              fontSize: 11,
-                                              color: Colors.white,
-                                              fontWeight: null,
-                                            ),
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/fast-delivery.png",
+                                            width: width * 0.041,
+                                            height: height * 0.025,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                          SizedBox(width: 3),
+                                          Container(
+                                            padding: EdgeInsets.all(2),
+                                            decoration: BoxDecoration(
+                                                color: blue,
+                                                borderRadius:
+                                                    BorderRadius.circular(3)),
+                                            child: delivery_feeList.isEmpty
+                                                ? Text("...")
+                                                : AutoText(
+                                                    text:
+                                                        "${delivery_feeList[index]} ฿",
+                                                    fontSize: 11,
+                                                    color: Colors.white,
+                                                    fontWeight: null,
+                                                  ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ),
+                              )
                             ],
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              );
+                        ),
+                      ),
+                    );
             },
           ));
         } else {

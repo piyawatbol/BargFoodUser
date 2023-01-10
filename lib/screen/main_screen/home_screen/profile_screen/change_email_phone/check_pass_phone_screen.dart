@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/change_email_phone/check_phone_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
-import 'package:barg_user_app/widget/back_button.dart';
+
 import 'package:barg_user_app/widget/color.dart';
 import 'package:barg_user_app/widget/loadingPage.dart';
 import 'package:barg_user_app/widget/show_aleart.dart';
@@ -59,28 +59,29 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: blue,
+        elevation: 0,
+        title: AutoText(
+          text: "Check Password",
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        actions: [],
+      ),
       body: Stack(
         children: [
           Container(
             width: width,
             height: height,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF73AEF5),
-                  Color(0xFF61A4F1),
-                  Color(0xFF478De0),
-                  Color(0xFF398AE5)
-                ],
-              ),
-            ),
             child: SafeArea(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    BackArrowButton(text: "Check Password", width2: 0.36),
                     Column(
                       children: [
                         Padding(
@@ -89,7 +90,7 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
                           child: AutoText(
                             text: "Enter Password",
                             fontSize: 24,
-                            color: Colors.white,
+                            color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -119,7 +120,7 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
           AutoText(
             text: "Password",
             fontSize: 14,
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: null,
           ),
           SizedBox(height: height * 0.004),
@@ -129,9 +130,9 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
               borderRadius: BorderRadius.circular(10.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6.0,
-                  offset: Offset(0, 2),
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 1,
+                  offset: Offset(0, 0),
                 ),
               ],
             ),
@@ -139,7 +140,7 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
               obscureText: pass,
               controller: pass_word,
               style: TextStyle(
-                color: blue,
+                color: Colors.black,
               ),
               decoration: InputDecoration(
                   suffixIcon: pass == true
@@ -151,7 +152,7 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
                           },
                           icon: Icon(
                             Icons.visibility_off,
-                            color: blue,
+                            color: Colors.black,
                           ))
                       : IconButton(
                           onPressed: () {
@@ -161,16 +162,16 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
                           },
                           icon: Icon(
                             Icons.visibility,
-                            color: blue,
+                            color: Colors.black,
                           )),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.only(top: 14),
                   prefixIcon: Icon(
                     Icons.key,
-                    color: blue,
+                    color: Colors.black,
                   ),
                   hintText: "Enter your Password",
-                  hintStyle: TextStyle(color: blue)),
+                  hintStyle: TextStyle(color: Colors.black)),
             ),
           )
         ],
@@ -182,6 +183,16 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 1,
+            offset: Offset(0, 0),
+          ),
+        ],
+      ),
       margin: EdgeInsets.symmetric(
           vertical: height * 0.07, horizontal: width * 0.07),
       width: double.infinity,
@@ -202,7 +213,7 @@ class _CheckPassPhoneScreenState extends State<CheckPassPhoneScreen> {
         },
         child: Center(
           child: AutoText(
-            color: blue,
+            color: Colors.black,
             fontSize: 24,
             text: 'Continue',
             fontWeight: FontWeight.bold,

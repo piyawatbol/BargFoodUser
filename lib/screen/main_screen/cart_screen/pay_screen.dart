@@ -31,6 +31,13 @@ class _PayScreenState extends State<PayScreen> {
   String? user_id;
   int? id;
 
+  get_user_id() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+  }
+
   add_request() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
@@ -76,7 +83,7 @@ class _PayScreenState extends State<PayScreen> {
         }),
       );
     }
-    delete_cart();
+    delete_cart_all();
     setState(() {
       statusLoading = false;
     });
@@ -89,10 +96,6 @@ class _PayScreenState extends State<PayScreen> {
   }
 
   get_request_id() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      user_id = preferences.getString('user_id');
-    });
     final response =
         await http.get(Uri.parse("$ipcon/get_request_id/$user_id"));
     var data = json.decode(response.body);
@@ -100,16 +103,13 @@ class _PayScreenState extends State<PayScreen> {
     print(id);
   }
 
-  delete_cart() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      user_id = preferences.getString('user_id');
-    });
-    await http.delete(Uri.parse("$ipcon/delete_cart/$user_id"));
+  delete_cart_all() async {
+    await http.delete(Uri.parse("$ipcon/delete_cart_all/$user_id"));
   }
 
   @override
   void initState() {
+    get_user_id();
     if (widget.pay_type == "Pay On Delivery") {
       setState(() {
         statusLoading = true;

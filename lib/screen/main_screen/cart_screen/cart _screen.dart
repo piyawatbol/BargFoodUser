@@ -28,6 +28,19 @@ class _CartScreenState extends State<CartScreen> {
   double? distance;
   double? delivery_fee;
   double? total;
+  List userList = [];
+
+  get_user() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+    final response = await http.get(Uri.parse("$ipcon/get_user/$user_id"));
+    var data = json.decode(response.body);
+    setState(() {
+      userList = data;
+    });
+  }
 
   get_cart() async {
     sum_price = 0;
@@ -111,6 +124,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void initState() {
+    get_user();
     get_cart();
     super.initState();
   }
@@ -279,7 +293,7 @@ class _CartScreenState extends State<CartScreen> {
             color: Colors.black,
             fontSize: 14,
             fontWeight: null,
-            text: '0999999',
+            text: '${userList[0]['phone']}',
           ),
         ],
       ),

@@ -54,43 +54,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: blue,
         elevation: 0,
         title: AutoText(
           text: "Profile",
           fontSize: 16,
-          color: Colors.black,
-          fontWeight: null,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
         iconTheme: IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return EditProfileScreen(
-                          user_id: '${userList[0]['user_id']}',
-                          firstname: "${userList[0]['first_name']}",
-                          lastname: '${userList[0]['last_name']}',
-                          email: '${userList[0]['email']}',
-                          phone: '${userList[0]['phone']}',
-                          img: '${userList[0]['user_image']}');
-                    },
-                  ),
-                ).then((value) => get_user());
-              },
-              icon: Icon(
-                Icons.edit,
-                size: 18,
-              ))
-        ],
       ),
       backgroundColor: Colors.white,
       body: userList.isEmpty
@@ -108,11 +86,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(height: height * 0.04),
                   buildProfile(),
                   buildName(),
+                  buildEditButton(),
                   SizedBox(height: height * 0.03),
-                  buildList("My Address"),
-                  buildList("Favorite"),
-                  buildList("Report"),
-                  buildList("Logout"),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.035),
+                    child: Column(
+                      children: [
+                        Divider(),
+                        buildMenu("Wallet", Icons.payment_outlined),
+                        buildMenu("My Address", Icons.home),
+                        buildMenu("Report", Icons.report),
+                        Divider(),
+                        buildMenu("Logout", Icons.logout_outlined),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -157,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           AutoText(
               text: "${userList[0]['email']}",
-              fontSize: 12,
+              fontSize: 14,
               color: Colors.grey,
               fontWeight: FontWeight.bold),
         ],
@@ -165,10 +153,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget buildList(String? text) {
+  Widget buildEditButton() {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-    return GestureDetector(
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: width * 0.3),
+      width: width * 0.2,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) {
+                return EditProfileScreen(
+                    user_id: '${userList[0]['user_id']}',
+                    firstname: "${userList[0]['first_name']}",
+                    lastname: '${userList[0]['last_name']}',
+                    email: '${userList[0]['email']}',
+                    phone: '${userList[0]['phone']}',
+                    img: '${userList[0]['user_image']}');
+              },
+            ),
+          ).then((value) => get_user());
+        },
+        style: ElevatedButton.styleFrom(
+            primary: blue, side: BorderSide.none, shape: StadiumBorder()),
+        child: AutoText(
+          text: "Edit Profile",
+          fontSize: 13,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget buildMenu(String? text, IconData? icon) {
+    return ListTile(
       onTap: () {
         if (text == "Logout") {
           showdialogLogout();
@@ -184,35 +205,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }));
         }
       },
-      child: Container(
-        height: height * 0.07,
+      leading: Container(
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 0.1,
-              spreadRadius: 0.5,
-              offset: Offset(0, 0),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(100),
+          color: blue,
         ),
-        padding: EdgeInsets.symmetric(horizontal: width * 0.07),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            AutoText(
-              text: "$text",
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: null,
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.grey.shade600,
-              size: 17,
-            )
-          ],
+        child: Icon(
+          icon,
+          color: Colors.white,
+        ),
+      ),
+      title: Text(
+        '$text',
+        style: TextStyle(color: Colors.black).apply(color: Colors.black),
+      ),
+      trailing: Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100), color: Colors.black12),
+        child: Icon(
+          Icons.arrow_forward_ios,
+          size: 18,
         ),
       ),
     );

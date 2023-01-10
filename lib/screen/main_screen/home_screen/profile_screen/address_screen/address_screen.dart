@@ -17,16 +17,16 @@ class _AddressScreenState extends State<AddressScreen> {
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: blue,
         elevation: 0.2,
         title: AutoText(
           text: "My Address",
           fontSize: 16,
-          color: Colors.black,
-          fontWeight: null,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
         iconTheme: IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
       body: Container(
