@@ -20,7 +20,6 @@ class _SplashScreenState extends State<SplashScreen> {
     setState(() {
       user_id = preferences.getString('user_id');
     });
-    print(user_id);
   }
 
   @override

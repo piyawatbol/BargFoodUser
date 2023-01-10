@@ -69,7 +69,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         statusLoading = false;
       });
       if (data == "update success") {
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       }
     }
   }

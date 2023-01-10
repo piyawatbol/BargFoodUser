@@ -60,7 +60,7 @@ class _TabScreenState extends State<TabScreen> {
           ),
           BottomNavigationBarItem(
             icon: ImageIcon(
-              AssetImage("assets/images/star2.png"),
+              AssetImage("assets/images/heart.png"),
             ),
             label: 'Favorite',
           ),

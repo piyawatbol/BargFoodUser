@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:barg_user_app/screen/main_screen/cart_screen/pay_screen.dart';
 import 'package:barg_user_app/widget/toast_custom.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
@@ -16,18 +18,23 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  Position? userLocation;
   String? user_id;
   List cartList = [];
+  List storeList = [];
   int sum_price = 0;
   String? selectItem;
   List item = ["QR CODE", "Pay On Delivery"];
+  double? distance;
+  double? delivery_fee;
+  double? total;
+
   get_cart() async {
     sum_price = 0;
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       user_id = preferences.getString('user_id');
     });
-
     final response = await http.get(Uri.parse("$ipcon/get_cart/$user_id"));
     var data = json.decode(response.body);
     if (this.mounted) {
@@ -36,10 +43,70 @@ class _CartScreenState extends State<CartScreen> {
       });
     }
     if (cartList[0]['price'] != null) {
+      get_store_one(cartList[0]['store_id']);
       for (var i = 0; i < cartList.length; i++) {
         sum_price = sum_price + int.parse(cartList[i]['price'].toString());
       }
     }
+  }
+
+  get_store_one(store_id) async {
+    final response =
+        await http.get(Uri.parse("$ipcon/get_store_one/$store_id"));
+    var data = json.decode(response.body);
+    if (this.mounted) {
+      setState(() {
+        storeList = data;
+      });
+    }
+    calculateDistance(double.parse(storeList[0]['store_lat'].toString()),
+        double.parse(storeList[0]['store_long'].toString()));
+  }
+
+  Future<Position?> _getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
+      }
+
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    userLocation = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
+    return userLocation;
+  }
+
+  calculateDistance(double lat, double long) async {
+    await _getLocation();
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat - userLocation!.latitude) * p) / 2 +
+        c(userLocation!.latitude * p) *
+            c(lat * p) *
+            (1 - c((userLocation!.longitude - long) * p)) /
+            2;
+
+    distance = double.parse((12742 * asin(sqrt(a))).toStringAsFixed(1));
+
+    setState(() {
+      delivery_fee = distance! * 5;
+      total = sum_price + delivery_fee!;
+    });
   }
 
   @override
@@ -383,16 +450,54 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               AutoText(
                 color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: 'Subtotal',
+              ),
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: '$sum_price ฿',
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: 'delivery fee',
+              ),
+              delivery_fee == null
+                  ? Text("...")
+                  : AutoText(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      text: '$delivery_fee ฿',
+                    ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AutoText(
+                color: Colors.black,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 text: 'Total',
               ),
-              AutoText(
-                color: Colors.green,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                text: '${sum_price} ฿',
-              ),
+              total == null
+                  ? Text("...")
+                  : AutoText(
+                      color: Colors.green,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      text: '$total ฿',
+                    ),
             ],
           )
         ],
@@ -429,6 +534,9 @@ class _CartScreenState extends State<CartScreen> {
                       return PayScreen(
                         pay_type: selectItem,
                         cartList: cartList,
+                        delivery_fee: delivery_fee,
+                        total: total,
+                        sum_price: sum_price,
                       );
                     },
                   ),

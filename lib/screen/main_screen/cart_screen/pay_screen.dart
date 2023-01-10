@@ -12,8 +12,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PayScreen extends StatefulWidget {
   List? cartList;
   String? pay_type;
+  double? delivery_fee;
+  int? sum_price;
+  double? total;
 
-  PayScreen({required this.pay_type, required this.cartList});
+  PayScreen(
+      {required this.pay_type,
+      required this.cartList,
+      required this.delivery_fee,
+      required this.sum_price,
+      required this.total});
   @override
   State<PayScreen> createState() => _PayScreenState();
 }
@@ -24,6 +32,10 @@ class _PayScreenState extends State<PayScreen> {
   int? id;
 
   add_request() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
     String order_id = DateFormat('yMdHms').format(DateTime.now());
     final response = await http.post(
       Uri.parse('$ipcon/add_request'),
@@ -31,11 +43,14 @@ class _PayScreenState extends State<PayScreen> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        "user_id": "1",
+        "user_id": user_id.toString(),
         "address_id": "1",
         "store_id": widget.cartList![0]['store_id'].toString(),
         "order_id": '$order_id',
-        "status": "1"
+        "status": "1",
+        "sum_price": widget.sum_price.toString(),
+        "delivery_fee": widget.delivery_fee.toString(),
+        "total": widget.total.toString(),
       }),
     );
     if (response.statusCode == 200) {
@@ -68,7 +83,7 @@ class _PayScreenState extends State<PayScreen> {
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (BuildContext context) {
       return StatusScreen(
-        requset_id: '$id',
+        request_id: '$id',
       );
     }));
   }

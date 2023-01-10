@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:barg_user_app/screen/main_screen/cart_screen/status_screen/rate_star_screen.dart';
+import 'package:barg_user_app/screen/main_screen/cart_screen/status_screen/rate_rider_screen.dart';
 import 'package:barg_user_app/screen/main_screen/order_screen/detail_order.dart';
 import 'package:barg_user_app/widget/loading_page2.dart';
 import 'package:flutter/services.dart';
@@ -17,8 +17,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui' as ui;
 
 class StatusScreen extends StatefulWidget {
-  String? requset_id;
-  StatusScreen({required this.requset_id});
+  String? request_id;
+  StatusScreen({required this.request_id});
 
   @override
   State<StatusScreen> createState() => _StatusScreenState();
@@ -71,7 +71,7 @@ class _StatusScreenState extends State<StatusScreen> {
 
   get_request_one() async {
     final response = await http
-        .get(Uri.parse("$ipcon/get_request_one/${widget.requset_id}"));
+        .get(Uri.parse("$ipcon/get_request_one/${widget.request_id}"));
     var data = json.decode(response.body);
     if (this.mounted) {
       setState(() {
@@ -306,7 +306,10 @@ class _StatusScreenState extends State<StatusScreen> {
       if (status == '7') {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (BuildContext context) {
-          return RateStarScreen();
+          return RateRiderScreen(
+            request_id: '${requestList[0]['request_id']}',
+            rider_id: '${requestList[0]['rider_id']}',
+          );
         }));
       }
       get_request_one();
@@ -406,7 +409,7 @@ class _StatusScreenState extends State<StatusScreen> {
                         SizedBox(width: 4),
                         SizedBox(
                           width: width * 0.77,
-                          child: AutoText(
+                          child: AutoText2(
                             color: Colors.black,
                             fontSize: 14,
                             fontWeight: null,
@@ -422,7 +425,8 @@ class _StatusScreenState extends State<StatusScreen> {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (BuildContext context) {
                       return DetailOrderScreen(
-                        request_id: '${widget.requset_id}',
+                        request_id: '${widget.request_id}',
+                        store_id: '',
                       );
                     }));
                   },
@@ -469,8 +473,10 @@ class _StatusScreenState extends State<StatusScreen> {
               polylines: Set<Polyline>.of(polylines.values),
               initialCameraPosition: CameraPosition(
                 zoom: 18,
-                target: LatLng(double.parse(requestList[0]['latitude']),
-                    double.parse(requestList[0]['longtitude'])),
+                target: requestList.isEmpty
+                    ? LatLng(0.0, 0.0)
+                    : LatLng(double.parse(requestList[0]['latitude']),
+                        double.parse(requestList[0]['longtitude'])),
               ),
             );
           } else {

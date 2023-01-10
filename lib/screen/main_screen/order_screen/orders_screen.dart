@@ -19,8 +19,6 @@ class OrdersScreen extends StatefulWidget {
 class _OrdersScreenState extends State<OrdersScreen> {
   String? user_id;
   List requestList = [];
-  List sumPirceList = [];
-  List orderList = [];
   int sum_price = 0;
 
   get_request() async {
@@ -35,24 +33,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
       setState(() {
         requestList = data;
       });
-    }
-  }
-
-  get_order(order_id) async {
-    final response = await http.get(Uri.parse("$ipcon/get_order/$order_id"));
-    var data = json.decode(response.body);
-
-    if (response.statusCode == 200) {
-      if (this.mounted) {
-        setState(() {
-          orderList = data;
-        });
-      }
-      sum_price = 0;
-      for (var i = 0; i < orderList.length; i++) {
-        sum_price = sum_price + int.parse(orderList[i]['price']);
-      }
-      sumPirceList.add('$sum_price');
     }
   }
 
@@ -136,7 +116,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return ListView.builder(
       itemCount: requestList.length,
       itemBuilder: (BuildContext context, int index) {
-        get_order(requestList[index]['order_id']);
         return int.parse(requestList[index]['status'].toString()) > 6
             ? Container()
             : GestureDetector(
@@ -144,7 +123,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (BuildContext context) {
                     return StatusScreen(
-                      requset_id: '${requestList[index]['request_id']}',
+                      request_id: '${requestList[index]['request_id']}',
                     );
                   })).then((value) => get_request());
                 },
@@ -237,14 +216,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          sumPirceList.isEmpty
-                              ? Text("")
-                              : AutoText(
-                                  color: Colors.green,
-                                  fontSize: 14,
-                                  fontWeight: null,
-                                  text: '${sumPirceList[index]} ฿',
-                                ),
+                          AutoText(
+                            color: Colors.green,
+                            fontSize: 14,
+                            fontWeight: null,
+                            text: '${requestList[index]['total']} ฿',
+                          ),
                         ],
                       ),
                     ],
@@ -268,6 +245,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       MaterialPageRoute(builder: (BuildContext context) {
                     return DetailOrderScreen(
                       request_id: '${requestList[index]['request_id']}',
+                      store_id: '${requestList[index]['store_id']}',
                     );
                   }));
                 },
@@ -357,14 +335,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          sumPirceList.isEmpty
-                              ? Text("123")
-                              : AutoText(
-                                  color: Colors.green,
-                                  fontSize: 14,
-                                  fontWeight: null,
-                                  text: '${sumPirceList[index]} ฿',
-                                ),
+                          AutoText(
+                            color: Colors.green,
+                            fontSize: 14,
+                            fontWeight: null,
+                            text: '${requestList[index]['total']} ฿',
+                          ),
                         ],
                       ),
                     ],

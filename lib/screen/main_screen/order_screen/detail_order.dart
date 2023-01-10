@@ -1,6 +1,8 @@
 // ignore_for_file: must_be_immutable
 
 import 'dart:convert';
+import 'package:barg_user_app/screen/main_screen/order_screen/rate_store_screen.dart';
+import 'package:barg_user_app/widget/toast_custom.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
@@ -9,7 +11,8 @@ import 'package:flutter/material.dart';
 
 class DetailOrderScreen extends StatefulWidget {
   String? request_id;
-  DetailOrderScreen({required this.request_id});
+  String? store_id;
+  DetailOrderScreen({required this.request_id, required this.store_id});
 
   @override
   State<DetailOrderScreen> createState() => _DetailOrderScreenState();
@@ -19,7 +22,6 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
   List requestList = [];
   List orderList = [];
   String? success_img;
-  int sumPrice = 0;
 
   get_request_one() async {
     final response = await http
@@ -38,9 +40,22 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
     setState(() {
       orderList = data;
     });
-    sumPrice = 0;
-    for (var i = 0; i < orderList.length; i++) {
-      sumPrice = sumPrice + int.parse(orderList[i]['price']);
+  }
+
+  check_rate_store() async {
+    final response = await http
+        .get(Uri.parse("$ipcon/check_rate_store/${widget.request_id}"));
+    var data = json.decode(response.body);
+    if (data == "have") {
+      Toast_Custom("You have already rated", Colors.grey);
+    } else {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (BuildContext context) {
+        return RateStoreScreen(
+          request_id: '${widget.request_id}',
+          store_id: '${widget.store_id}',
+        );
+      }));
     }
   }
 
@@ -57,6 +72,7 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
 
   @override
   void initState() {
+    print(widget.request_id.toString());
     get_request_one();
     super.initState();
   }
@@ -137,22 +153,60 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
           vertical: height * 0.01, horizontal: width * 0.03),
       width: width,
       height: height * 0.1,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          AutoText(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: null,
-            text: '${requestList[0]['store_name']}',
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AutoText(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: null,
+                text: '${requestList[0]['store_name']}',
+              ),
+              AutoText(
+                color: Colors.grey,
+                fontSize: 14,
+                fontWeight: null,
+                text: '${requestList[0]['date']} ${requestList[0]['time']}',
+              ),
+            ],
           ),
-          AutoText(
-            color: Colors.grey,
-            fontSize: 14,
-            fontWeight: null,
-            text: '${requestList[0]['date']} ${requestList[0]['time']}',
-          ),
+          widget.store_id == ''
+              ? Container()
+              : GestureDetector(
+                  onTap: () {
+                    check_rate_store();
+                  },
+                  child: Container(
+                    width: width * 0.2,
+                    height: height * 0.04,
+                    decoration: BoxDecoration(
+                      color: blue,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AutoText(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            text: 'Rate',
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.white,
+                            size: 15,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
         ],
       ),
     );
@@ -163,16 +217,15 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
     double height = MediaQuery.of(context).size.height;
     return Container(
       width: width,
-      height: height * 0.07,
+      height: height * 0.12,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
             children: [
-              SizedBox(width: width * 0.02),
               Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: width * 0.005, vertical: height * 0.003),
+                    horizontal: width * 0.03, vertical: height * 0.003),
                 child: Image.asset(
                   "assets/images/location.png",
                   width: width * 0.04,
@@ -180,21 +233,23 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                   color: Colors.red,
                 ),
               ),
-              AutoText2(
-                color: Colors.grey.shade800,
-                fontSize: 14,
-                fontWeight: null,
-                text:
-                    '${requestList[0]['store_house_number']} ${requestList[0]['store_county']} ${requestList[0]['store_district']} ${requestList[0]['store_province']}	',
+              SizedBox(
+                width: width * 0.9,
+                child: AutoText3(
+                  color: Colors.grey.shade800,
+                  fontSize: 14,
+                  fontWeight: null,
+                  text:
+                      '${requestList[0]['store_detail']} ${requestList[0]['store_house_number']} ${requestList[0]['store_county']} ${requestList[0]['store_district']} ${requestList[0]['store_province']}	',
+                ),
               ),
             ],
           ),
           Row(
             children: [
-              SizedBox(width: width * 0.02),
               Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: width * 0.005, vertical: height * 0.003),
+                    horizontal: width * 0.03, vertical: height * 0.003),
                 child: Image.asset(
                   "assets/images/location.png",
                   width: width * 0.04,
@@ -202,12 +257,16 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                   color: blue,
                 ),
               ),
-              AutoText2(
-                color: Colors.grey.shade800,
-                fontSize: 14,
-                fontWeight: null,
-                text:
-                    '${requestList[0]['address_detail']} ${requestList[0]['county']} ${requestList[0]['district']} ${requestList[0]['province']}',
+              SizedBox(
+                width: width * 0.9,
+                height: height * 0.06,
+                child: AutoText3(
+                  color: Colors.grey.shade800,
+                  fontSize: 14,
+                  fontWeight: null,
+                  text:
+                      '${requestList[0]['address_detail']} ${requestList[0]['house_number']} ${requestList[0]['county']} ${requestList[0]['district']} ${requestList[0]['province']}',
+                ),
               ),
             ],
           ),
@@ -302,6 +361,40 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
             children: [
               AutoText(
                 color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: 'Subtotal',
+              ),
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: '${requestList[0]['sum_price']} ฿',
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: 'delivery fee',
+              ),
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: '${requestList[0]['delivery_fee']} ฿',
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AutoText(
+                color: Colors.black,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 text: 'Total',
@@ -310,7 +403,7 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                 color: Colors.green,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                text: '$sumPrice ฿',
+                text: '${requestList[0]['total']} ฿',
               ),
             ],
           )

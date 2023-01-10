@@ -5,7 +5,6 @@ import 'package:barg_user_app/screen/login_system/login_screen.dart';
 import 'package:barg_user_app/screen/main_screen/favorite_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/address_screen/address_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/edit_proflile_screen.dart';
-import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/show_big_img.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/color.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +20,10 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   List userList = [];
+  String? user_id;
+  String? image;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   logout() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -32,7 +35,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   get_user() async {
-    String? user_id;
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       user_id = preferences.getString('user_id');
@@ -52,7 +54,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
@@ -69,17 +70,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                  return EditProfileScreen(
-                      user_id: '${userList[0]['user_id']}',
-                      firstname: "${userList[0]['first_name']}",
-                      lastname: '${userList[0]['last_name']}',
-                      email: '${userList[0]['email']}',
-                      phone: '${userList[0]['phone']}',
-                      img: '${userList[0]['user_image']}');
-                }));
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) {
+                      return EditProfileScreen(
+                          user_id: '${userList[0]['user_id']}',
+                          firstname: "${userList[0]['first_name']}",
+                          lastname: '${userList[0]['last_name']}',
+                          email: '${userList[0]['email']}',
+                          phone: '${userList[0]['phone']}',
+                          img: '${userList[0]['user_image']}');
+                    },
+                  ),
+                ).then((value) => get_user());
               },
               icon: Icon(
                 Icons.edit,
@@ -93,22 +98,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: CircularProgressIndicator(
               color: blue,
             ))
-          : Container(
-              width: width,
-              height: height,
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    SizedBox(height: height * 0.04),
-                    buildProfile(),
-                    buildName(),
-                    SizedBox(height: height * 0.03),
-                    buildList("My Address"),
-                    buildList("Favorite"),
-                    buildList("Report"),
-                    buildList("Logout"),
-                  ],
-                ),
+          : RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: () async {
+                get_user();
+              },
+              child: ListView(
+                children: [
+                  SizedBox(height: height * 0.04),
+                  buildProfile(),
+                  buildName(),
+                  SizedBox(height: height * 0.03),
+                  buildList("My Address"),
+                  buildList("Favorite"),
+                  buildList("Report"),
+                  buildList("Logout"),
+                ],
               ),
             ),
     );
@@ -116,43 +121,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget buildProfile() {
     double width = MediaQuery.of(context).size.width;
-    return FutureBuilder(
-      future: get_user(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return userList[0]['user_image'] == ""
-            ? CircleAvatar(
-                radius: width * 0.17,
-                backgroundColor: Colors.white,
-                child: CircleAvatar(
-                  radius: width * 0.17,
-                  backgroundImage: AssetImage("assets/images/profile.png"),
-                ),
-              )
-            : GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return ShowBigImg(img: userList[0]['user_image']);
-                      },
-                    ),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: width * 0.17,
-                  backgroundColor: Colors.white,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: width * 0.155,
-                    backgroundImage: NetworkImage(
-                      "$path_img/users/${userList[0]['user_image']}",
-                    ),
-                  ),
-                ),
-              );
-      },
-    );
+    return userList[0]['user_image'] == ""
+        ? CircleAvatar(
+            radius: width * 0.17,
+            backgroundColor: Colors.white,
+            child: CircleAvatar(
+              radius: width * 0.17,
+              backgroundImage: AssetImage("assets/images/profile.png"),
+            ),
+          )
+        : CircleAvatar(
+            radius: width * 0.17,
+            backgroundColor: Colors.white,
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: width * 0.155,
+              backgroundImage: NetworkImage(
+                "$path_img/users/${userList[0]['user_image']}",
+              ),
+            ),
+          );
   }
 
   Widget buildName() {
