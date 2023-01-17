@@ -2,13 +2,13 @@
 
 import 'dart:convert';
 import 'package:barg_user_app/widget/color.dart';
+import 'package:barg_user_app/widget/loadingPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/toast_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class EditMenuScreen extends StatefulWidget {
   String? store_id;
@@ -26,42 +26,39 @@ class EditMenuScreen extends StatefulWidget {
       required this.store_id,
       required this.price,
       required this.amount,
-      required this.detaill,required this.cart_id});
+      required this.detaill,
+      required this.cart_id});
 
   @override
   State<EditMenuScreen> createState() => _EditMenuScreenState();
 }
 
 class _EditMenuScreenState extends State<EditMenuScreen> {
+  int? amount;
   TextEditingController detail = TextEditingController();
   String? user_id;
   List cartList = [];
+  bool statusLoading = false;
 
   edit_menu() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      user_id = preferences.getString('user_id');
-    });
-    int price = int.parse(widget.price.toString()) * widget.amount!;
-    final response = await http.post(
-      Uri.parse('$ipcon/add_cart'),
+    int price = int.parse(widget.price.toString()) * amount!;
+    final response = await http.patch(
+      Uri.parse('$ipcon/edit_cart/${widget.cart_id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        "user_id": user_id.toString(),
-        "store_id": '${widget.store_id}',
         "food_id": '${widget.food_id}',
         "food_name": '${widget.food_name}',
-        "amount": widget.amount.toString(),
-        "price": '${price}',
+        "amount": amount.toString(),
+        "price": price.toString(),
         "detail": detail.text,
       }),
     );
     var data = json.decode(response.body);
     print(data);
     if (response.statusCode == 200) {
-      Toast_Custom("Add to Cart Success", Colors.green);
+      Toast_Custom("Update to Cart Success", Colors.green);
       Navigator.pop(context);
     }
   }
@@ -72,6 +69,7 @@ class _EditMenuScreenState extends State<EditMenuScreen> {
 
   @override
   void initState() {
+    amount = int.parse(widget.amount.toString());
     setTextController();
     super.initState();
   }
@@ -88,35 +86,40 @@ class _EditMenuScreenState extends State<EditMenuScreen> {
         body: Container(
           width: width,
           height: height,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
               Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildImg(),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: height * 0.015, horizontal: width * 0.03),
-                    child: AutoText(
-                      text: "${widget.food_name}",
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: null,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildImg(),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: height * 0.015, horizontal: width * 0.03),
+                        child: AutoText(
+                          text: "${widget.food_name}",
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: null,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: height * 0.003),
+                        height: 5,
+                        color: Colors.grey.shade200,
+                      ),
+                      buildBox(),
+                    ],
                   ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: height * 0.003),
-                    height: 5,
-                    color: Colors.grey.shade200,
-                  ),
-                  buildBox(),
+                  Column(
+                    children: [buildAmount(), buildButtonAddCart()],
+                  )
                 ],
               ),
-              Column(
-                children: [buildAmount(), buildButtonAddCart()],
-              )
+              LoadingPage(statusLoading: statusLoading)
             ],
           ),
         ),
@@ -215,30 +218,22 @@ class _EditMenuScreenState extends State<EditMenuScreen> {
           children: [
             GestureDetector(
               onTap: () {
-                if (widget.amount != 1) {
+                if (amount != 0) {
                   setState(() {
-                    widget.amount = widget.amount! - 1;
+                    amount = amount! - 1;
                   });
                 }
               },
-              child: widget.amount == 1
-                  ? GestureDetector(
-                      onTap: () {},
-                      child: Image.asset('assets/images/minus.png',
-                          width: width * 0.1,
-                          height: height * 0.1,
-                          color: Colors.black12),
-                    )
-                  : Image.asset('assets/images/minus.png',
-                      width: width * 0.1,
-                      height: height * 0.1,
-                      color: Colors.black54),
+              child: Image.asset('assets/images/minus.png',
+                  width: width * 0.1,
+                  height: height * 0.1,
+                  color: Colors.black54),
             ),
             Container(
               width: width * 0.15,
               child: Center(
                 child: AutoText(
-                  text: "${widget.amount}",
+                  text: "${amount}",
                   fontSize: 26,
                   color: Colors.black,
                   fontWeight: null,
@@ -248,7 +243,7 @@ class _EditMenuScreenState extends State<EditMenuScreen> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  widget.amount = widget.amount! + 1;
+                  amount = amount! + 1;
                 });
               },
               child: Image.asset(
@@ -282,7 +277,12 @@ class _EditMenuScreenState extends State<EditMenuScreen> {
                 borderRadius: BorderRadius.all(Radius.circular(5)),
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                statusLoading = true;
+              });
+              edit_menu();
+            },
             child: Center(
               child: AutoText(
                 color: Colors.white,

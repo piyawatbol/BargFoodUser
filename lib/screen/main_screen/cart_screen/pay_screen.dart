@@ -15,13 +15,15 @@ class PayScreen extends StatefulWidget {
   double? delivery_fee;
   int? sum_price;
   double? total;
+  String? buyer_name;
 
   PayScreen(
       {required this.pay_type,
       required this.cartList,
       required this.delivery_fee,
       required this.sum_price,
-      required this.total});
+      required this.total,
+      required this.buyer_name});
   @override
   State<PayScreen> createState() => _PayScreenState();
 }
@@ -30,15 +32,25 @@ class _PayScreenState extends State<PayScreen> {
   bool statusLoading = false;
   String? user_id;
   int? id;
+  List addressList = [];
+  String? address_id;
 
-  get_user_id() async {
+  get_address_default() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       user_id = preferences.getString('user_id');
     });
+    final response =
+        await http.get(Uri.parse("$ipcon/get_address_default/$user_id"));
+    var data = json.decode(response.body);
+    setState(() {
+      addressList = data;
+      address_id = addressList[0]['address_id'].toString();
+    });
+    add_request(address_id);
   }
 
-  add_request() async {
+  add_request(address_id) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       user_id = preferences.getString('user_id');
@@ -50,10 +62,11 @@ class _PayScreenState extends State<PayScreen> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        "user_id": user_id.toString(),
-        "address_id": "1",
+        "user_id": user_id!,
+        "address_id": address_id!,
         "store_id": widget.cartList![0]['store_id'].toString(),
         "order_id": '$order_id',
+        "buyer_name": widget.buyer_name.toString(),
         "status": "1",
         "sum_price": widget.sum_price.toString(),
         "delivery_fee": widget.delivery_fee.toString(),
@@ -109,13 +122,11 @@ class _PayScreenState extends State<PayScreen> {
 
   @override
   void initState() {
-    get_user_id();
-    if (widget.pay_type == "Pay On Delivery") {
-      setState(() {
-        statusLoading = true;
-      });
-      add_request();
-    }
+    setState(() {
+      statusLoading = true;
+    });
+    get_address_default();
+
     super.initState();
   }
 

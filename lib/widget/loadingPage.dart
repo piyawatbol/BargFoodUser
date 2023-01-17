@@ -17,8 +17,10 @@ class _LoadingPageState extends State<LoadingPage> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
+      onDoubleTap: () {
+        setState(() {
+          widget.statusLoading = false;
+        });
       },
       child: Visibility(
         visible: widget.statusLoading == true ? true : false,

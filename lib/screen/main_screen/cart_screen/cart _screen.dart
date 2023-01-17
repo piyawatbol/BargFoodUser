@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:barg_user_app/screen/main_screen/cart_screen/edit_menu_screen.dart';
 import 'package:barg_user_app/screen/main_screen/cart_screen/pay_screen.dart';
-import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/edit_proflile_screen.dart';
+import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/address_screen/address_screen.dart';
 import 'package:barg_user_app/widget/loadingPage.dart';
 import 'package:barg_user_app/widget/toast_custom.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
@@ -22,32 +21,22 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  Position? userLocation;
   String? user_id;
   List cartList = [];
   List storeList = [];
   int sum_price = 0;
   String? selectItem;
-  List item = ["QR CODE", "Pay On Delivery"];
   double? distance;
   double? delivery_fee;
   double? total;
-  List userList = [];
   bool statusLoading = false;
   List foodList = [];
   int amount = 1;
-
-  get_user() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(() {
-      user_id = preferences.getString('user_id');
-    });
-    final response = await http.get(Uri.parse("$ipcon/get_user/$user_id"));
-    var data = json.decode(response.body);
-    setState(() {
-      userList = data;
-    });
-  }
+  List addressList = [];
+  List buyerList = [];
+  List item1 = [];
+  double? _lat;
+  double? _long;
 
   get_cart() async {
     sum_price = 0;
@@ -83,43 +72,12 @@ class _CartScreenState extends State<CartScreen> {
         double.parse(storeList[0]['store_long'].toString()));
   }
 
-  Future<Position?> _getLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.deniedForever) {
-        return Future.error(
-            'Location permissions are permanently denied, we cannot request permissions.');
-      }
-
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    userLocation = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
-    return userLocation;
-  }
-
   calculateDistance(double lat, double long) async {
-    await _getLocation();
     var p = 0.017453292519943295;
     var c = cos;
     var a = 0.5 -
-        c((lat - userLocation!.latitude) * p) / 2 +
-        c(userLocation!.latitude * p) *
-            c(lat * p) *
-            (1 - c((userLocation!.longitude - long) * p)) /
-            2;
+        c((lat - _lat!) * p) / 2 +
+        c(_lat! * p) * c(lat * p) * (1 - c((_long! - long) * p)) / 2;
 
     distance = double.parse((12742 * asin(sqrt(a))).toStringAsFixed(1));
 
@@ -129,11 +87,11 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  get_menu_one(String? food_id) async {
+  get_cart_one(String? cart_id) async {
     setState(() {
       statusLoading = true;
     });
-    final response = await http.get(Uri.parse("$ipcon/get_menu_one/$food_id"));
+    final response = await http.get(Uri.parse("$ipcon/get_cart_one/$cart_id"));
     var data = json.decode(response.body);
     if (response.statusCode == 200) {
       setState(() {
@@ -143,10 +101,56 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  delete_cart_one(String? cart_id) async {
+    setState(() {
+      statusLoading = true;
+    });
+    final response =
+        await http.delete(Uri.parse("$ipcon/delete_cart_one/$cart_id"));
+    // var data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      setState(() {
+        statusLoading = false;
+      });
+    }
+    Navigator.pop(context);
+    get_cart();
+  }
+
+  get_address_default() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+    final response =
+        await http.get(Uri.parse("$ipcon/get_address_default/$user_id"));
+    var data = json.decode(response.body);
+    setState(() {
+      addressList = data;
+      _lat = double.parse(addressList[0]['latitude']);
+      _long = double.parse(addressList[0]['longtitude']);
+    });
+    get_cart();
+  }
+
+  get_buyer() async {
+    final response = await http.get(Uri.parse("$ipcon/get_buyer"));
+    var data = json.decode(response.body);
+    setState(() {
+      buyerList = data;
+    });
+
+    for (var i = 0; i < buyerList.length; i++) {
+      item1.add(buyerList[i]['buyer_name']);
+    }
+  }
+
+  
+
   @override
   void initState() {
-    get_user();
-    get_cart();
+    get_buyer();
+    get_address_default();
     super.initState();
   }
 
@@ -168,7 +172,9 @@ class _CartScreenState extends State<CartScreen> {
       ),
       body: cartList.isEmpty
           ? Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: blue,
+              ),
             )
           : cartList[0]['item'] == 'not have cart'
               ? Container(
@@ -250,64 +256,12 @@ class _CartScreenState extends State<CartScreen> {
   Widget buildAddress() {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Container(
-      padding: EdgeInsets.all(10),
-      width: width,
-      height: height * 0.05,
-      margin: EdgeInsets.symmetric(horizontal: width * 0.05),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(2),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 1,
-            spreadRadius: 1,
-            offset: Offset(0, 0),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset(
-            "assets/images/location.png",
-            width: width * 0.05,
-            height: height * 0.025,
-            color: blue,
-          ),
-          SizedBox(width: width * 0.03),
-          AutoText(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: null,
-            text: '555/4 คลองจั่น บางกระปิ',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildContactInfo() {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return EditProfileScreen(
-                email: '${userList[0]['email']}',
-                firstname: '${userList[0]['first_name']}',
-                img: '${userList[0]['user_image']}',
-                lastname: '${userList[0]['last_name']}',
-                phone: '${userList[0]['phone']}',
-                user_id: '${userList[0]['user_id']}',
-              );
-            },
-          ),
-        );
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return AddressScreen();
+        }));
       },
       child: Container(
         padding: EdgeInsets.all(10),
@@ -329,19 +283,83 @@ class _CartScreenState extends State<CartScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              Icons.phone,
+            Image.asset(
+              "assets/images/location.png",
+              width: width * 0.05,
+              height: height * 0.025,
               color: blue,
             ),
-            SizedBox(width: width * 0.02),
+            SizedBox(width: width * 0.03),
             AutoText(
               color: Colors.black,
               fontSize: 14,
               fontWeight: null,
-              text: '${userList[0]['phone']}',
+              text:
+                  '${addressList[0]['address_detail']} ${addressList[0]['house_number']} ${addressList[0]['county']} ',
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildContactInfo() {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    return Container(
+      padding: EdgeInsets.all(10),
+      width: width,
+      height: height * 0.1,
+      margin: EdgeInsets.symmetric(horizontal: width * 0.05),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(2),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 1,
+            spreadRadius: 1,
+            offset: Offset(0, 0),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.person,
+                color: blue,
+              ),
+              SizedBox(width: width * 0.02),
+              AutoText(
+                color: Colors.black,
+                fontSize: 14,
+                fontWeight: null,
+                text: '${addressList[0]['name']}',
+              ),
+            ],
+          ),
+          SizedBox(height: height * 0.01),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.phone,
+                color: blue,
+              ),
+              SizedBox(width: width * 0.02),
+              AutoText(
+                color: Colors.black,
+                fontSize: 14,
+                fontWeight: null,
+                text: '${addressList[0]['phone']}',
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -366,7 +384,7 @@ class _CartScreenState extends State<CartScreen> {
                   icon: Icons.edit,
                   label: 'edit',
                   onPressed: (context) async {
-                    await get_menu_one(cartList[index]['food_id'].toString());
+                    await get_cart_one(cartList[index]['cart_id'].toString());
                     Navigator.push(context,
                         MaterialPageRoute(builder: (BuildContext context) {
                       return EditMenuScreen(
@@ -377,7 +395,7 @@ class _CartScreenState extends State<CartScreen> {
                         price: "${foodList[0]['price']}",
                         amount: int.parse(cartList[index]['amount'].toString()),
                         detaill: '${cartList[index]['detail']}',
-                        cart_id: '${cartList[index]['cart_id']}}',
+                        cart_id: '${cartList[index]['cart_id']}',
                       );
                     })).then((value) => get_cart());
                   },
@@ -387,7 +405,8 @@ class _CartScreenState extends State<CartScreen> {
                   icon: Icons.delete,
                   label: 'delete',
                   onPressed: (context) {
-                    _showModalBottomSheet();
+                    _showModalBottomSheet(
+                        cartList[index]['cart_id'].toString());
                   },
                 )
               ],
@@ -521,7 +540,7 @@ class _CartScreenState extends State<CartScreen> {
             value: selectItem,
             isExpanded: true,
             elevation: 2,
-            items: item.map((item) {
+            items: item1.map((item) {
               return DropdownMenuItem(
                 value: item,
                 child: Row(
@@ -580,14 +599,12 @@ class _CartScreenState extends State<CartScreen> {
                 fontWeight: FontWeight.w500,
                 text: 'delivery fee',
               ),
-              delivery_fee == null
-                  ? Text("...")
-                  : AutoText(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      text: '$delivery_fee ฿',
-                    ),
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                text: '$delivery_fee ฿',
+              ),
             ],
           ),
           Row(
@@ -646,6 +663,7 @@ class _CartScreenState extends State<CartScreen> {
                         delivery_fee: delivery_fee,
                         total: total,
                         sum_price: sum_price,
+                        buyer_name: selectItem,
                       );
                     },
                   ),
@@ -668,7 +686,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget buildButtonOk() {
+  Widget buildButtonOk(String? cart_id) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Row(
@@ -686,7 +704,12 @@ class _CartScreenState extends State<CartScreen> {
                 borderRadius: BorderRadius.all(Radius.circular(5)),
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                statusLoading = true;
+              });
+              delete_cart_one(cart_id);
+            },
             child: Center(
               child: AutoText(
                 color: Colors.white,
@@ -736,7 +759,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  void _showModalBottomSheet() {
+  void _showModalBottomSheet(String cart_id) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     showModalBottomSheet(
@@ -756,7 +779,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
               Column(
                 children: [
-                  buildButtonOk(),
+                  buildButtonOk(cart_id),
                   buildButtonCancel(),
                 ],
               )

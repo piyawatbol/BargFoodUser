@@ -22,6 +22,9 @@ class FavoriteScreen extends State<FavariteScreen> {
   double? distance;
   List delivery_feeList = [];
   List rateList = [];
+  double? _lat;
+  double? _long;
+  List addressList = [];
 
   get_fav() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -33,19 +36,21 @@ class FavoriteScreen extends State<FavariteScreen> {
     setState(() {
       storeList = data;
     });
+    for (var i = 0; i < storeList.length; i++) {
+      sum_rate_store(i, storeList[i]['store_id'].toString());
+    }
+    for (var i = 0; i < storeList.length; i++) {
+      calculateDistance(i, double.parse(storeList[i]['store_lat'].toString()),
+          double.parse(storeList[i]['store_long'].toString()));
+    }
   }
 
   calculateDistance(index, double lat, double long) async {
     var p = 0.017453292519943295;
     var c = cos;
     var a = 0.5 -
-        c((lat - double.parse(userLocation!.latitude.toString())) * p) / 2 +
-        c(double.parse(userLocation!.latitude.toString()) * p) *
-            c(lat * p) *
-            (1 -
-                c((double.parse(userLocation!.longitude.toString()) - long) *
-                    p)) /
-            2;
+        c((lat - _lat!) * p) / 2 +
+        c(_lat! * p) * c(lat * p) * (1 - c((_long! - long) * p)) / 2;
 
     distance = double.parse((12742 * asin(sqrt(a))).toStringAsFixed(1));
 
@@ -62,6 +67,22 @@ class FavoriteScreen extends State<FavariteScreen> {
     } else {
       delivery_feeList.add(delivery_fee);
     }
+  }
+
+  get_address_default() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+    final response =
+        await http.get(Uri.parse("$ipcon/get_address_default/$user_id"));
+    var data = json.decode(response.body);
+    setState(() {
+      addressList = data;
+      _lat = double.parse(addressList[0]['latitude']);
+      _long = double.parse(addressList[0]['longtitude']);
+    });
+    get_fav();
   }
 
   sum_rate_store(index, String? store_id) async {
@@ -90,37 +111,10 @@ class FavoriteScreen extends State<FavariteScreen> {
     }
   }
 
-  Future<Position?> _getLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.deniedForever) {
-        return Future.error(
-            'Location permissions are permanently denied, we cannot request permissions.');
-      }
-
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    userLocation = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
-    return userLocation;
-  }
-
   @override
   void initState() {
-    _getLocation();
-    get_fav();
+    get_address_default();
+
     super.initState();
   }
 
@@ -160,156 +154,136 @@ class FavoriteScreen extends State<FavariteScreen> {
   Widget buildListFav() {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return FutureBuilder(
-      future: _getLocation(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.hasData) {
-          return Expanded(
-              child: ListView.builder(
-            itemCount: storeList.length,
-            itemBuilder: (BuildContext context, int index) {
-              sum_rate_store(index, storeList[index]['store_id'].toString());
-              calculateDistance(
-                  index,
-                  double.parse(storeList[index]['store_lat'].toString()),
-                  double.parse(storeList[index]['store_long'].toString()));
-              return rateList.length != storeList.length
-                  ? Container()
-                  : GestureDetector(
-                      onTap: () {
-                        if (delivery_feeList.isNotEmpty &&
-                            distanceList.isNotEmpty) {
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return MenuScreen(
-                                store_id: '${storeList[index]['store_id']}',
-                                store_image:
-                                    '${storeList[index]['store_image']}',
-                                store_name: '${storeList[index]['store_name']}',
-                                delivery_fee: '${delivery_feeList[index]}',
-                                distance: '${distanceList[index]}',
-                                star: "${rateList[index]}");
-                          })).then((value) => get_fav());
-                        }
-                      },
-                      child: Container(
-                        margin: EdgeInsets.symmetric(vertical: 1),
-                        width: width,
-                        height: height * 0.15,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 0.1,
-                              spreadRadius: 0.1,
-                              offset: Offset(0, 0),
-                            ),
-                          ],
+    return Expanded(
+      child: ListView.builder(
+        itemCount: storeList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return rateList.length != storeList.length
+              ? Container()
+              : GestureDetector(
+                  onTap: () {
+                    if (delivery_feeList.isNotEmpty &&
+                        distanceList.isNotEmpty) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (BuildContext context) {
+                        return MenuScreen(
+                            store_id: '${storeList[index]['store_id']}',
+                            store_image: '${storeList[index]['store_image']}',
+                            store_name: '${storeList[index]['store_name']}',
+                            delivery_fee: '${delivery_feeList[index]}',
+                            distance: '${distanceList[index]}',
+                            star: "${rateList[index]}");
+                      })).then((value) => get_fav());
+                    }
+                  },
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 1),
+                    width: width,
+                    height: height * 0.15,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 0.1,
+                          spreadRadius: 0.1,
+                          offset: Offset(0, 0),
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.04,
-                              vertical: height * 0.02),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: width * 0.25,
-                                height: height * 0.2,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: NetworkImage(
-                                        "$path_img/store/${storeList[index]['store_image']}"),
-                                  ),
-                                ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.04, vertical: height * 0.02),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: width * 0.25,
+                            height: height * 0.2,
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                    "$path_img/store/${storeList[index]['store_image']}"),
                               ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: height * 0.01,
-                                    horizontal: width * 0.04),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: height * 0.01,
+                                horizontal: width * 0.04),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AutoText(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  text: '${storeList[index]['store_name']}',
+                                ),
+                                Row(
                                   children: [
-                                    AutoText(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      text: '${storeList[index]['store_name']}',
+                                    Image.asset(
+                                      "assets/images/star.png",
+                                      width: width * 0.03,
+                                      height: height * 0.02,
+                                      color: Colors.yellow.shade800,
                                     ),
-                                    Row(
-                                      children: [
-                                        Image.asset(
-                                          "assets/images/star.png",
-                                          width: width * 0.03,
-                                          height: height * 0.02,
-                                          color: Colors.yellow.shade800,
-                                        ),
-                                        SizedBox(width: width * 0.015),
-                                        rateList.isEmpty
-                                            ? Text("...")
-                                            : AutoText(
-                                                text: "${rateList[index]}",
-                                                fontSize: 14,
-                                                color: Colors.grey.shade600,
-                                                fontWeight: null,
-                                              ),
-                                      ],
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(1),
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey.shade300,
-                                          borderRadius:
-                                              BorderRadius.circular(3)),
-                                      child: Row(
-                                        children: [
-                                          Image.asset(
-                                            "assets/images/fast-delivery.png",
-                                            width: width * 0.041,
-                                            height: height * 0.025,
+                                    SizedBox(width: width * 0.015),
+                                    rateList.isEmpty
+                                        ? Text("...")
+                                        : AutoText(
+                                            text: "${rateList[index]}",
+                                            fontSize: 14,
                                             color: Colors.grey.shade600,
+                                            fontWeight: null,
                                           ),
-                                          SizedBox(width: 3),
-                                          Container(
-                                            padding: EdgeInsets.all(2),
-                                            decoration: BoxDecoration(
-                                                color: blue,
-                                                borderRadius:
-                                                    BorderRadius.circular(3)),
-                                            child: delivery_feeList.isEmpty
-                                                ? Text("...")
-                                                : AutoText(
-                                                    text:
-                                                        "${delivery_feeList[index]} ฿",
-                                                    fontSize: 11,
-                                                    color: Colors.white,
-                                                    fontWeight: null,
-                                                  ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
                                   ],
                                 ),
-                              )
-                            ],
-                          ),
-                        ),
+                                Container(
+                                  padding: EdgeInsets.all(1),
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(3)),
+                                  child: Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/images/fast-delivery.png",
+                                        width: width * 0.041,
+                                        height: height * 0.025,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      SizedBox(width: 3),
+                                      Container(
+                                        padding: EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                            color: blue,
+                                            borderRadius:
+                                                BorderRadius.circular(3)),
+                                        child: delivery_feeList.isEmpty
+                                            ? Text("...")
+                                            : AutoText(
+                                                text:
+                                                    "${delivery_feeList[index]} ฿",
+                                                fontSize: 11,
+                                                color: Colors.white,
+                                                fontWeight: null,
+                                              ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
                       ),
-                    );
-            },
-          ));
-        } else {
-          return Container(
-            width: width,
-            height: height * 0.7,
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-      },
+                    ),
+                  ),
+                );
+        },
+      ),
     );
   }
 }

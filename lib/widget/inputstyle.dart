@@ -17,5 +17,8 @@ inputStyle(context) {
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(color: Colors.grey.shade300),
     ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.red.shade300),
+    ),
   );
 }
