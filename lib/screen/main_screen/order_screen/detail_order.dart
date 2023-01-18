@@ -246,6 +246,7 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
             ],
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(

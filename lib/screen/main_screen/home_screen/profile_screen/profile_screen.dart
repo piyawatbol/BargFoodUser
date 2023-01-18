@@ -5,7 +5,7 @@ import 'package:barg_user_app/screen/login_system/login_screen.dart';
 import 'package:barg_user_app/screen/main_screen/favorite_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/address_screen/address_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/edit_proflile_screen.dart';
-import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/wallet_screen.dart';
+import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/wallet/wallet_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/color.dart';
 import 'package:http/http.dart' as http;

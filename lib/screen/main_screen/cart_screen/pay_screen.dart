@@ -126,7 +126,6 @@ class _PayScreenState extends State<PayScreen> {
       statusLoading = true;
     });
     get_address_default();
-
     super.initState();
   }
 

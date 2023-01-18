@@ -37,6 +37,8 @@ class _CartScreenState extends State<CartScreen> {
   List item1 = [];
   double? _lat;
   double? _long;
+  List walletList = [];
+  int? wallet_id;
 
   get_cart() async {
     sum_price = 0;
@@ -145,11 +147,66 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-  
+  pay_wallet() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+    final response = await http.patch(
+      Uri.parse('$ipcon/pay_wallet/$user_id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        "wallet_id": wallet_id.toString(),
+        "wallet_amount": total.toString(),
+        "wallet_total": walletList[0]['wallet_total'].toString(),
+      }),
+    );
+    var data = json.decode(response.body);
+    print(data);
+    if (response.statusCode == 200) {
+      if (data == "pay wallet Success") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return PayScreen(
+                pay_type: selectItem,
+                cartList: cartList,
+                delivery_fee: delivery_fee,
+                total: total,
+                sum_price: sum_price,
+                buyer_name: selectItem,
+              );
+            },
+          ),
+        ).then((value) {
+          get_cart();
+        });
+      } else if (data == "The amount in the wallet is insufficient") {
+        Toast_Custom(data, Colors.red);
+      }
+    }
+  }
+
+  get_wallet() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = preferences.getString('user_id');
+    });
+    final response = await http.get(Uri.parse("$ipcon/get_wallet/$user_id"));
+    var data = json.decode(response.body);
+    setState(() {
+      walletList = data;
+      wallet_id = walletList[0]['wallet_id'];
+    });
+  }
 
   @override
   void initState() {
     get_buyer();
+    get_wallet();
     get_address_default();
     super.initState();
   }
@@ -653,23 +710,27 @@ class _CartScreenState extends State<CartScreen> {
               if (selectItem == null || selectItem == '') {
                 Toast_Custom("Please Choose Payment", Colors.grey);
               } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return PayScreen(
-                        pay_type: selectItem,
-                        cartList: cartList,
-                        delivery_fee: delivery_fee,
-                        total: total,
-                        sum_price: sum_price,
-                        buyer_name: selectItem,
-                      );
-                    },
-                  ),
-                ).then((value) {
-                  get_cart();
-                });
+                if (selectItem == "Wallet") {
+                  pay_wallet();
+                } else if (selectItem == "Pay On Delivery") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) {
+                        return PayScreen(
+                          pay_type: selectItem,
+                          cartList: cartList,
+                          delivery_fee: delivery_fee,
+                          total: total,
+                          sum_price: sum_price,
+                          buyer_name: selectItem,
+                        );
+                      },
+                    ),
+                  ).then((value) {
+                    get_cart();
+                  });
+                }
               }
             },
             child: Center(

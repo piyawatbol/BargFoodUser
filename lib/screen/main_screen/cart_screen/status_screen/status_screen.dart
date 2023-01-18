@@ -45,7 +45,7 @@ class _StatusScreenState extends State<StatusScreen> {
   double longmap = 0.0;
   double? zoom;
   double? distance;
-  String? status;
+  int? status;
   late BitmapDescriptor mapMaker;
   List orderList = [];
   List userList = [];
@@ -77,8 +77,8 @@ class _StatusScreenState extends State<StatusScreen> {
       setState(() {
         statusLoading = false;
         requestList = data;
-        status = requestList[0]['status'];
-        if (status == '1') {
+        status = requestList[0]['order_status_id'];
+        if (status == 1) {
           setState(() {
             statusLoading = true;
           });
@@ -106,14 +106,14 @@ class _StatusScreenState extends State<StatusScreen> {
         startLocation = LatLng(double.parse(requestList[0]['latitude']),
             double.parse(requestList[0]['longtitude']));
 
-        if (status == '6' || status == "7") {
+        if (status == 6 || status == 7) {
           endLocation = LatLng(rider_lat!, rider_long!);
         } else {
           endLocation = LatLng(store_lat!, store_long!);
         }
 
-        if (requestList[0]['status'] == "6" ||
-            requestList[0]['status'] == "7") {
+        if (requestList[0]['order_status_id'] == 6 ||
+            requestList[0]['order_status_id'] == 7) {
           latmap = double.parse(requestList[0]['latitude']) + rider_lat!;
           latmap = latmap / 2;
           longmap = double.parse(requestList[0]['longtitude']) + rider_long!;
@@ -174,7 +174,7 @@ class _StatusScreenState extends State<StatusScreen> {
         }
       });
     }
-    if (status == '6') {
+    if (status == 6) {
       add_maker_polyline();
     }
   }
@@ -303,7 +303,7 @@ class _StatusScreenState extends State<StatusScreen> {
     statusLoading = true;
     get_request_one();
     _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
-      if (status == '7') {
+      if (status == 7) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return RateRiderScreen(
@@ -512,8 +512,7 @@ class _StatusScreenState extends State<StatusScreen> {
                 children: [
                   Image.asset(
                     'assets/images/rider2.png',
-                    color:
-                        int.parse(status.toString()) >= 4 ? blue : Colors.grey,
+                    color: status! >= 4 ? blue : Colors.grey,
                     width: width * 0.08,
                   ),
                   Container(
@@ -521,16 +520,13 @@ class _StatusScreenState extends State<StatusScreen> {
                     width: width * 0.15,
                     height: height * 0.01,
                     decoration: BoxDecoration(
-                      color: int.parse(status.toString()) >= 4
-                          ? blue
-                          : Colors.grey,
+                      color: status! >= 4 ? blue : Colors.grey,
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   Image.asset(
                     'assets/images/shop.png',
-                    color:
-                        int.parse(status.toString()) >= 5 ? blue : Colors.grey,
+                    color: status! >= 5 ? blue : Colors.grey,
                     width: width * 0.065,
                   ),
                   Container(
@@ -538,15 +534,12 @@ class _StatusScreenState extends State<StatusScreen> {
                     width: width * 0.15,
                     height: height * 0.01,
                     decoration: BoxDecoration(
-                        color: int.parse(status.toString()) >= 5
-                            ? blue
-                            : Colors.grey,
+                        color: status! >= 5 ? blue : Colors.grey,
                         borderRadius: BorderRadius.circular(30)),
                   ),
                   Image.asset(
                     'assets/images/rider3.png',
-                    color:
-                        int.parse(status.toString()) >= 6 ? blue : Colors.grey,
+                    color: status! >= 6 ? blue : Colors.grey,
                     width: width * 0.063,
                   ),
                   Container(
@@ -554,14 +547,12 @@ class _StatusScreenState extends State<StatusScreen> {
                     width: width * 0.15,
                     height: height * 0.01,
                     decoration: BoxDecoration(
-                        color: int.parse(status.toString()) >= 6
-                            ? blue
-                            : Colors.grey,
+                        color: status! >= 6 ? blue : Colors.grey,
                         borderRadius: BorderRadius.circular(30)),
                   ),
                   Image.asset(
                     'assets/images/home2.png',
-                    color: status == '7' ? blue : Colors.grey,
+                    color: status == 7 ? blue : Colors.grey,
                     width: width * 0.06,
                   ),
                 ],

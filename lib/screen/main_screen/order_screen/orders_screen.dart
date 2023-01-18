@@ -116,7 +116,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return ListView.builder(
       itemCount: requestList.length,
       itemBuilder: (BuildContext context, int index) {
-        return int.parse(requestList[index]['status'].toString()) > 6
+        return requestList[index]['order_status_id'] > 6
             ? Container()
             : GestureDetector(
                 onTap: () {
@@ -238,7 +238,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return ListView.builder(
       itemCount: requestList.length,
       itemBuilder: (BuildContext context, int index) {
-        return int.parse(requestList[index]['status'].toString()) == 7
+        return requestList[index]['order_status_id'] == 7
             ? GestureDetector(
                 onTap: () {
                   Navigator.push(context,
@@ -358,7 +358,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return ListView.builder(
       itemCount: requestList.length,
       itemBuilder: (BuildContext context, int index) {
-        return int.parse(requestList[index]['status'].toString()) == 8
+        return requestList[index]['order_status_id'] == 8
             ? Container(
                 margin: EdgeInsets.symmetric(vertical: 1),
                 padding: EdgeInsets.symmetric(

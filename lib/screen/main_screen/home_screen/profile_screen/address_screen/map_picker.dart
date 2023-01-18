@@ -31,9 +31,32 @@ class _MappickerScreenState extends State<MappickerScreen> {
   );
 
   Future<Position?> _getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
+      }
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
     userLocation = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best);
     return userLocation;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocation();
   }
 
   @override
@@ -123,12 +146,13 @@ class _MappickerScreenState extends State<MappickerScreen> {
                   ),
                 ),
                 onPressed: () {
+                  print(
+                      "Location ${cameraPosition.target.latitude} ${cameraPosition.target.longitude}");
                   if (cameraPosition.target.latitude != 0.0) {
                     setState(() {
                       statusLoading = true;
                     });
-                    // print(
-                    //     "Location ${cameraPosition.target.latitude} ${cameraPosition.target.longitude}");
+
                     List latlong = [
                       cameraPosition.target.latitude,
                       cameraPosition.target.longitude

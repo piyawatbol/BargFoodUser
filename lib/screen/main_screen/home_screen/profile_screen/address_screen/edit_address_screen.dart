@@ -208,6 +208,22 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     });
   }
 
+  delete_address() async {
+    setState(() {
+      statusLoading = true;
+    });
+    final response = await http
+        .delete(Uri.parse("$ipcon/delete_address/${widget.address_id}"));
+    // var data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      setState(() {
+        statusLoading = false;
+      });
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
+  }
+
   @override
   void initState() {
     get_address_default();
@@ -234,6 +250,13 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         iconTheme: IconThemeData(
           color: Colors.white,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                _showModalBottomSheet();
+              },
+              icon: Icon(Icons.delete_outline))
+        ],
       ),
       body: addressList.isEmpty
           ? Center(child: CircularProgressIndicator(color: blue))
@@ -474,6 +497,107 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildButtonOk() {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: height * 0.01),
+          width: width * 0.9,
+          height: height * 0.05,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black87,
+              backgroundColor: blue,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+            ),
+            onPressed: () {
+              delete_address();
+            },
+            child: Center(
+              child: AutoText(
+                color: Colors.white,
+                fontSize: 14,
+                text: 'Ok',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildButtonCancel() {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: width * 0.9,
+          height: height * 0.05,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black87,
+              backgroundColor: Colors.white,
+              side: BorderSide(color: Colors.black, width: 1),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Center(
+              child: AutoText(
+                color: Colors.black,
+                fontSize: 14,
+                text: 'Cancel',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showModalBottomSheet() {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) {
+        return Container(
+          width: width,
+          height: height * 0.25,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              AutoText(
+                color: Colors.black,
+                fontSize: 16,
+                text: 'Delete Address?',
+                fontWeight: FontWeight.bold,
+              ),
+              Column(
+                children: [
+                  buildButtonOk(),
+                  buildButtonCancel(),
+                ],
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }

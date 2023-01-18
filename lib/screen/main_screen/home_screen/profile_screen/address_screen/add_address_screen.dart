@@ -102,19 +102,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   }
 
   add_address() async {
-    print("user_id : $user_id");
-    print(name.text);
-    print(phone.text);
-    print(house_number.text);
-    print(district.text);
-    print(county.text);
-    print(province.text);
-    print(zipcode.text);
-    print(lat);
-    print(long);
-    print(address_detail.text);
-    print(select_status_id);
-
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       user_id = preferences.getString('user_id');
