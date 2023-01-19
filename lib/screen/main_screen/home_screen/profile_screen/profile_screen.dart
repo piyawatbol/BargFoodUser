@@ -29,10 +29,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   logout() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.clear();
-    Navigator.pushReplacement(context,
+    Navigator.pushAndRemoveUntil(context,
         MaterialPageRoute(builder: (BuildContext context) {
       return LoginScreen();
-    }));
+    }), (route) => false);
   }
 
   get_user() async {

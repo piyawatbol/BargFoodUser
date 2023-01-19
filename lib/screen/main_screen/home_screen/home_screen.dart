@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
     for (var i = 0; i < storeList.length; i++) {
-      sum_rate_store(i, storeList[i]['store_id'].toString());
+      get_rate_store(i, storeList[i]['store_id'].toString());
     }
     for (var i = 0; i < storeList.length; i++) {
       calculateDistance(i, double.parse(storeList[i]['store_lat'].toString()),
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  sum_rate_store(index, String? store_id) async {
+  get_rate_store(index, String? store_id) async {
     final response =
         await http.get(Uri.parse("$ipcon/sum_rate_store/$store_id"));
     var data = json.decode(response.body);
