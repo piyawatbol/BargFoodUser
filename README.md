@@ -1,4 +1,4 @@
-แอพเกี่ยวการสั่งซื้ออาหารผ่าน delivery ด้วยระบบ wallet และ ปลายทาง
+แอพเกี่ยวการ สั่งซื้ออาหารผ่าน delivery ด้วยระบบ wallet และ ปลายทาง
 
 ![1](https://user-images.githubusercontent.com/93056207/213484504-876035d6-2239-4736-b4bb-54ad7eedaba0.png)
 
