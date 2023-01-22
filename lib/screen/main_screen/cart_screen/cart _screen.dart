@@ -199,8 +199,8 @@ class _CartScreenState extends State<CartScreen> {
     var data = json.decode(response.body);
     setState(() {
       walletList = data;
-      wallet_id = walletList[0]['wallet_id'];
     });
+    wallet_id = walletList[0]['wallet_id'];
   }
 
   @override

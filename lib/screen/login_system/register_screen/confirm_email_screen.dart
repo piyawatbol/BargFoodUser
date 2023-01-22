@@ -5,6 +5,7 @@ import 'package:barg_user_app/screen/login_system/login_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/back_button.dart';
 import 'package:barg_user_app/widget/loadingPage.dart';
+import 'package:barg_user_app/widget/show_aleart.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,7 @@ class _ConfirmEmailScreenState extends State<ConfirmEmailScreen> {
       var data = json.decode(response.body);
       print(data);
       if (data == "not correct") {
-        buildShowAlert("Otp Incorrect");
+        buildShowAlert(context, "Otp Incorrect");
       } else if (data == "correct") {
         register();
       }
@@ -94,12 +95,29 @@ class _ConfirmEmailScreenState extends State<ConfirmEmailScreen> {
       }),
     );
     var data = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      register_wallet(data[0]['user_id'].toString());
+    }
+  }
+
+  register_wallet(String user_id) async {
+    final response = await http.post(
+      Uri.parse('$ipcon/register_wallet'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        "user_id": user_id,
+      }),
+    );
+    var data = json.decode(response.body);
     print(data);
     if (response.statusCode == 200) {
       setState(() {
         statusLoading = false;
       });
-      if (data == "register success") {
+      if (data == "register wallet Success") {
         Navigator.pushAndRemoveUntil(context,
             MaterialPageRoute(builder: (BuildContext context) {
           return LoginScreen();
@@ -125,7 +143,7 @@ class _ConfirmEmailScreenState extends State<ConfirmEmailScreen> {
         statusLoading = false;
       });
       if (data == "send email success") {
-        buildShowAlert("Send email Again");
+        buildShowAlert(context, "Send email Again");
         startTimer();
       }
     }
@@ -171,11 +189,9 @@ class _ConfirmEmailScreenState extends State<ConfirmEmailScreen> {
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: height * 0.05),
                         child: AutoText(
-                         
                           text: "${widget.email}",
                           fontSize: 24,
                           color: Colors.white,
-                         
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -203,11 +219,9 @@ class _ConfirmEmailScreenState extends State<ConfirmEmailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AutoText(
-         
             text: "Otp",
             fontSize: 14,
             color: Colors.white,
-           
             fontWeight: FontWeight.w600,
           ),
           SizedBox(
@@ -265,16 +279,13 @@ class _ConfirmEmailScreenState extends State<ConfirmEmailScreen> {
               fontSize: 14,
               fontWeight: null,
               text: 'send again',
-             
             ))
         : Padding(
             padding: EdgeInsets.symmetric(vertical: height * 0.02),
             child: AutoText(
-            
               text: "Resend in $_Counter seconds",
               fontSize: 14,
               color: Colors.white,
-             
               fontWeight: null,
             ),
           );
@@ -307,53 +318,9 @@ class _ConfirmEmailScreenState extends State<ConfirmEmailScreen> {
             color: Color(0xFF527DAA),
             fontSize: 24,
             text: 'Continnue',
-           
             fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-    );
-  }
-
-  buildShowAlert(String? text) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-    return showDialog(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Center(
-            child: Text(
-          "$text",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        )),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(30)),
-        ),
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: width * 0.1, vertical: height * 0.01),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                onPrimary: Colors.white,
-                primary: Colors.blue,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: AutoText(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                text: 'Ok',
-         
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

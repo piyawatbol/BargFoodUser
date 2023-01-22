@@ -5,6 +5,7 @@ import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/back_button.dart';
 import 'package:barg_user_app/widget/color.dart';
 import 'package:barg_user_app/widget/loadingPage.dart';
+import 'package:barg_user_app/widget/show_aleart.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
 import 'package:flutter/material.dart';
@@ -32,19 +33,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
         RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@gmail.com")
             .hasMatch(email.text);
     if (emailValid == false) {
-      buildShowAlert("Please use Gmail");
+      buildShowAlert(context, "Please use Gmail");
     } else if (first_name.text == "") {
-      buildShowAlert("Please enter your Firstname");
+      buildShowAlert(context, "Please enter your Firstname");
     } else if (last_name.text == "") {
-      buildShowAlert("Please enter your Lastname");
+      buildShowAlert(context, "Please enter your Lastname");
     } else if (user_name.text == "") {
-      buildShowAlert("Please enter your Username");
+      buildShowAlert(context, "Please enter your Username");
     } else if (email.text == "") {
-      buildShowAlert("Please enter your Email");
+      buildShowAlert(context, "Please enter your Email");
     } else if (phone.text == "") {
-      buildShowAlert("Please enter your Phone");
+      buildShowAlert(context, "Please enter your Phone");
     } else if (pass_word.text == "") {
-      buildShowAlert("Please enter your Password");
+      buildShowAlert(context, "Please enter your Password");
     } else {
       setState(() {
         statusLoading = true;
@@ -63,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'user_name': user_name.text,
         'email': email.text,
         'phone': phone.text,
-        'status_id': '2',
+        'status_id': '1',
       }),
     );
     var data = json.decode(response.body);
@@ -73,11 +74,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         statusLoading = false;
       });
       if (data == "duplicate username") {
-        buildShowAlert("Username already in use");
+        buildShowAlert(context, "Username already in use");
       } else if (data == "duplicate email") {
-        buildShowAlert("Email already in use");
+        buildShowAlert(context, "Email already in use");
       } else if (data == "duplicate phone") {
-        buildShowAlert("Phone already in use");
+        buildShowAlert(context, "Phone already in use");
       } else if (data == "not duplicate") {
         setState(() {
           statusLoading = true;
@@ -343,48 +344,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-    );
-  }
-
-  buildShowAlert(String? text) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-    showDialog(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Center(
-            child: Text(
-          "$text",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        )),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(30)),
-        ),
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: width * 0.1, vertical: height * 0.01),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                onPrimary: Colors.white,
-                primary: Colors.blue,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: AutoText(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                text: 'Ok',
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

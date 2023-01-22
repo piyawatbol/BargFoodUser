@@ -29,6 +29,7 @@ class _AddressScreenState extends State<AddressScreen> {
     setState(() {
       addressList = data;
     });
+    print(addressList);
   }
 
   @override
@@ -82,105 +83,113 @@ class _AddressScreenState extends State<AddressScreen> {
       child: ListView.builder(
         itemCount: addressList.length,
         itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return EditAddressScreen(
-                  address_id: '${addressList[index]['address_id'].toString()}',
-                );
-              })).then((value) => get_address());
-            },
-            child: Container(
-              width: width,
-              height: height * 0.13,
-              margin: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 1,
-                    spreadRadius: 1,
-                    offset: Offset(0, 0),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: height * 0.01, horizontal: width * 0.02),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(width: width * 0.001),
-                            AutoText(
-                              text: "${addressList[index]['address_detail']} ",
-                              fontSize: 15,
-                              color: Colors.black,
-                              fontWeight: null,
-                            ),
-                          ],
-                        ),
-                        Icon(
-                          Icons.edit,
-                          size: 18,
-                          color: blue,
+          return addressList[0]['item'] == "not have address"
+              ? SizedBox()
+              : GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (BuildContext context) {
+                      return EditAddressScreen(
+                        address_id:
+                            '${addressList[index]['address_id'].toString()}',
+                      );
+                    })).then((value) => get_address());
+                  },
+                  child: Container(
+                    width: width,
+                    height: height * 0.13,
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 1,
+                          spreadRadius: 1,
+                          offset: Offset(0, 0),
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        SizedBox(width: width * 0.01),
-                        Container(
-                          width: width * 0.7,
-                          child: AutoText3(
-                            text:
-                                "${addressList[index]['house_number']} ${addressList[index]['county']} ${addressList[index]['district']} ${addressList[index]['province']}  ${addressList[index]['zip_code']} ",
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: null,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: height * 0.01, horizontal: width * 0.02),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  SizedBox(width: width * 0.001),
+                                  AutoText(
+                                    text:
+                                        "${addressList[index]['address_detail']} ",
+                                    fontSize: 15,
+                                    color: Colors.black,
+                                    fontWeight: null,
+                                  ),
+                                ],
+                              ),
+                              Icon(
+                                Icons.edit,
+                                size: 18,
+                                color: blue,
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                          vertical: height * 0.004, horizontal: width * 0.011),
-                      width: addressList[index]['address_status_id'] == 1
-                          ? width * 0.16
-                          : addressList[index]['address_status_id'] == 2
-                              ? width * 0.3
-                              : width * 0.16,
-                      height: height * 0.025,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  addressList[index]['address_status_id'] == 1
-                                      ? Colors.red
-                                      : Colors.grey)),
-                      child: Center(
-                        child: AutoText(
-                          text: "${addressList[index]['address_status_name']} ",
-                          fontSize: 16,
-                          color: addressList[index]['address_status_id'] == 1
-                              ? Colors.red
-                              : Colors.grey,
-                          fontWeight: null,
-                        ),
+                          Row(
+                            children: [
+                              SizedBox(width: width * 0.01),
+                              Container(
+                                width: width * 0.7,
+                                child: AutoText3(
+                                  text:
+                                      "${addressList[index]['house_number']} ${addressList[index]['county']} ${addressList[index]['district']} ${addressList[index]['province']}  ${addressList[index]['zip_code']} ",
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                  fontWeight: null,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                                vertical: height * 0.004,
+                                horizontal: width * 0.011),
+                            width: addressList[index]['address_status_id'] == 1
+                                ? width * 0.16
+                                : addressList[index]['address_status_id'] == 2
+                                    ? width * 0.3
+                                    : width * 0.16,
+                            height: height * 0.025,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: addressList[index]
+                                                ['address_status_id'] ==
+                                            1
+                                        ? Colors.red
+                                        : Colors.grey)),
+                            child: Center(
+                              child: AutoText(
+                                text:
+                                    "${addressList[index]['address_status_name']} ",
+                                fontSize: 16,
+                                color:
+                                    addressList[index]['address_status_id'] == 1
+                                        ? Colors.red
+                                        : Colors.grey,
+                                fontWeight: null,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
+                    ),
+                  ),
+                );
         },
       ),
     );

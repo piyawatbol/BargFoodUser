@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/address_screen/add_address_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
@@ -106,9 +107,17 @@ class _HomeScreenState extends State<HomeScreen> {
     var data = await json.decode(response.body);
     setState(() {
       addressList = data;
-      _lat = double.parse(addressList[0]['latitude']);
-      _long = double.parse(addressList[0]['longtitude']);
     });
+
+    if (addressList[0]['item'] == "not have address") {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (BuildContext context) {
+        return AddAddressScreen();
+      }));
+    } else {
+      _lat = double.parse(addressList[0]['latitude'].toString());
+      _long = double.parse(addressList[0]['longtitude'].toString());
+    }
     get_store();
   }
 
