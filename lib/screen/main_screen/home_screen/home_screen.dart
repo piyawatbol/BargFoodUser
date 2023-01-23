@@ -39,13 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
         storeList = data;
       });
     }
-    for (var i = 0; i < storeList.length; i++) {
-      get_rate_store(i, storeList[i]['store_id'].toString());
-    }
-    for (var i = 0; i < storeList.length; i++) {
-      calculateDistance(i, double.parse(storeList[i]['store_lat'].toString()),
-          double.parse(storeList[i]['store_long'].toString()));
-    }
   }
 
   get_rate_store(index, String? store_id) async {
@@ -255,6 +248,11 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisSpacing: 10),
           itemCount: storeList.length,
           itemBuilder: (BuildContext context, int index) {
+            get_rate_store(index, storeList[index]['store_id'].toString());
+            calculateDistance(
+                index,
+                double.parse(storeList[index]['store_lat'].toString()),
+                double.parse(storeList[index]['store_long'].toString()));
             return rateList.length != storeList.length
                 ? Container()
                 : GestureDetector(

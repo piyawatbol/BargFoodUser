@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:barg_user_app/widget/show_modol_img.dart';
+import 'package:barg_user_app/widget/toast_custom.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -234,7 +235,11 @@ class _RateStoreScreenState extends State<RateStoreScreen> {
           ),
         ),
         onPressed: () {
-          add_rate_store();
+          if (image == null) {
+            Toast_Custom("Please Chooes Photo", Colors.red);
+          } else {
+            add_rate_store();
+          }
         },
         child: Center(
           child: AutoText(

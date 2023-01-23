@@ -36,13 +36,13 @@ class FavoriteScreen extends State<FavariteScreen> {
     setState(() {
       storeList = data;
     });
-    for (var i = 0; i < storeList.length; i++) {
-      sum_rate_store(i, storeList[i]['store_id'].toString());
-    }
-    for (var i = 0; i < storeList.length; i++) {
-      calculateDistance(i, double.parse(storeList[i]['store_lat'].toString()),
-          double.parse(storeList[i]['store_long'].toString()));
-    }
+    // for (var i = 0; i < storeList.length; i++) {
+    //   sum_rate_store(i, storeList[i]['store_id'].toString());
+    // }
+    // for (var i = 0; i < storeList.length; i++) {
+    //   calculateDistance(i, double.parse(storeList[i]['store_lat'].toString()),
+    //       double.parse(storeList[i]['store_long'].toString()));
+    // }
   }
 
   calculateDistance(index, double lat, double long) async {
@@ -85,7 +85,7 @@ class FavoriteScreen extends State<FavariteScreen> {
     get_fav();
   }
 
-  sum_rate_store(index, String? store_id) async {
+  get_rate_store(index, String? store_id) async {
     final response =
         await http.get(Uri.parse("$ipcon/sum_rate_store/$store_id"));
     var data = json.decode(response.body);
@@ -158,6 +158,11 @@ class FavoriteScreen extends State<FavariteScreen> {
       child: ListView.builder(
         itemCount: storeList.length,
         itemBuilder: (BuildContext context, int index) {
+          get_rate_store(index, storeList[index]['store_id'].toString());
+          calculateDistance(
+              index,
+              double.parse(storeList[index]['store_lat'].toString()),
+              double.parse(storeList[index]['store_long'].toString()));
           return rateList.length != storeList.length
               ? Container()
               : GestureDetector(

@@ -247,7 +247,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       request_id: '${requestList[index]['request_id']}',
                       store_id: '${requestList[index]['store_id']}',
                     );
-                  }));
+                  })).then((value) => get_request());
                 },
                 child: Container(
                   margin: EdgeInsets.symmetric(vertical: 1),
@@ -359,101 +359,112 @@ class _OrdersScreenState extends State<OrdersScreen> {
       itemCount: requestList.length,
       itemBuilder: (BuildContext context, int index) {
         return requestList[index]['order_status_id'] == 8
-            ? Container(
-                margin: EdgeInsets.symmetric(vertical: 1),
-                padding: EdgeInsets.symmetric(
-                    vertical: height * 0.015, horizontal: width * 0.07),
-                width: width,
-                height: height * 0.12,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 0.1,
-                      spreadRadius: 0.1,
-                      offset: Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AutoText(
-                          color: Colors.grey,
-                          fontSize: 12,
-                          fontWeight: null,
-                          text:
-                              '${requestList[index]['date']} , ${requestList[index]['time']}',
-                        ),
-                        Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.005,
-                                  vertical: height * 0.003),
-                              child: Image.asset(
-                                "assets/images/location.png",
-                                width: width * 0.04,
-                                height: height * 0.02,
-                                color: Colors.red,
+            ? GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return DetailOrderScreen(
+                      request_id: '${requestList[index]['request_id']}',
+                      store_id: '${requestList[index]['store_id']}',
+                    );
+                  })).then((value) => get_request());
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 1),
+                  padding: EdgeInsets.symmetric(
+                      vertical: height * 0.015, horizontal: width * 0.07),
+                  width: width,
+                  height: height * 0.12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 0.1,
+                        spreadRadius: 0.1,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AutoText(
+                            color: Colors.grey,
+                            fontSize: 12,
+                            fontWeight: null,
+                            text:
+                                '${requestList[index]['date']} , ${requestList[index]['time']}',
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.005,
+                                    vertical: height * 0.003),
+                                child: Image.asset(
+                                  "assets/images/location.png",
+                                  width: width * 0.04,
+                                  height: height * 0.02,
+                                  color: Colors.red,
+                                ),
                               ),
-                            ),
-                            AutoText(
-                              color: Colors.grey.shade800,
-                              fontSize: 12,
-                              fontWeight: null,
-                              text: '${requestList[index]['store_name']}',
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.005,
-                                  vertical: height * 0.003),
-                              child: Image.asset(
-                                "assets/images/location.png",
-                                width: width * 0.04,
-                                height: height * 0.02,
-                                color: blue,
+                              AutoText(
+                                color: Colors.grey.shade800,
+                                fontSize: 12,
+                                fontWeight: null,
+                                text: '${requestList[index]['store_name']}',
                               ),
-                            ),
-                            AutoText(
-                              color: Colors.grey.shade800,
-                              fontSize: 12,
-                              fontWeight: null,
-                              text:
-                                  '${requestList[index]['house_number']} ${requestList[index]['county']} ${requestList[index]['district']}',
-                            ),
-                          ],
-                        ),
-                        AutoText(
-                          color: Colors.red,
-                          fontSize: 12,
-                          fontWeight: null,
-                          text: '${requestList[index]['order_status_name']}',
-                        ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        AutoText(
-                          color: Colors.green,
-                          fontSize: 14,
-                          fontWeight: null,
-                          text: '฿220',
-                        ),
-                      ],
-                    ),
-                  ],
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.005,
+                                    vertical: height * 0.003),
+                                child: Image.asset(
+                                  "assets/images/location.png",
+                                  width: width * 0.04,
+                                  height: height * 0.02,
+                                  color: blue,
+                                ),
+                              ),
+                              AutoText(
+                                color: Colors.grey.shade800,
+                                fontSize: 12,
+                                fontWeight: null,
+                                text:
+                                    '${requestList[index]['house_number']} ${requestList[index]['county']} ${requestList[index]['district']}',
+                              ),
+                            ],
+                          ),
+                          AutoText(
+                            color: Colors.red,
+                            fontSize: 12,
+                            fontWeight: null,
+                            text: '${requestList[index]['order_status_name']}',
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          AutoText(
+                            color: Colors.red,
+                            fontSize: 14,
+                            fontWeight: null,
+                            text: '${requestList[index]['total']}฿',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               )
             : Container();

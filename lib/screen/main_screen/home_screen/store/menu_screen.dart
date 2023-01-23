@@ -1,11 +1,10 @@
 // ignore_for_file: must_be_immutable
-
 import 'dart:convert';
+import 'package:barg_user_app/screen/main_screen/home_screen/store/search_menu_screen.dart';
 import 'package:barg_user_app/widget/color.dart';
 import 'package:barg_user_app/widget/toast_custom.dart';
 import 'package:http/http.dart' as http;
 import 'package:barg_user_app/ipcon.dart';
-import 'package:barg_user_app/screen/main_screen/home_screen/search_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/store/detail_store_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/store/menu_detail_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
@@ -32,9 +31,12 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+ 
   List foodList = [];
   bool fav = false;
   String? user_id;
+
+ 
 
   get_menu() async {
     final response =
@@ -164,7 +166,9 @@ class _MenuScreenState extends State<MenuScreen> {
                   onPressed: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (BuildContext context) {
-                      return SearchScreen();
+                      return SearchMenuScreen(
+                        store_id: widget.store_id.toString(),
+                      );
                     }));
                   },
                 ),

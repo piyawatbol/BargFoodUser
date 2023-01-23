@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:barg_user_app/screen/main_screen/cart_screen/status_screen/rate_rider_screen.dart';
 import 'package:barg_user_app/screen/main_screen/order_screen/detail_order.dart';
+import 'package:barg_user_app/screen/main_screen/tab_screen.dart';
 import 'package:barg_user_app/widget/loading_page2.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -311,6 +312,11 @@ class _StatusScreenState extends State<StatusScreen> {
             rider_id: '${requestList[0]['rider_id']}',
           );
         }));
+      } else if (status == 8) {
+        Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (BuildContext context) {
+          return TabScreen();
+        }), (route) => false);
       }
       get_request_one();
     });
