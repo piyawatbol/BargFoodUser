@@ -10,9 +10,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Barg Food Driver',
-        home: SplashScreen(),
-        theme: ThemeData());
+      debugShowCheckedModeBanner: false,
+      title: 'Barg Food Driver',
+      home: SplashScreen(),
+    );
   }
 }

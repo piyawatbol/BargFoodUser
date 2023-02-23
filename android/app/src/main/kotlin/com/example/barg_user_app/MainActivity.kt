@@ -1,4 +1,4 @@
-package com.example.barg_user_app
+package com.piyawat.barg_user_app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -5,6 +5,7 @@ import 'package:barg_user_app/screen/login_system/login_screen.dart';
 import 'package:barg_user_app/screen/main_screen/favorite_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/address_screen/address_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/edit_proflile_screen.dart';
+import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/report_screen.dart';
 import 'package:barg_user_app/screen/main_screen/home_screen/profile_screen/wallet/wallet_screen.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/color.dart';
@@ -14,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key? key}) : super(key: key);
-
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -192,7 +192,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget buildMenu(String? text, IconData? icon) {
     return ListTile(
       onTap: () {
-        if (text == "Logout") {
+        if (text == "Report") {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return ReportScreen();
+          }));
+        } else if (text == "Logout") {
           showdialogLogout();
         } else if (text == "My Address") {
           Navigator.push(context,

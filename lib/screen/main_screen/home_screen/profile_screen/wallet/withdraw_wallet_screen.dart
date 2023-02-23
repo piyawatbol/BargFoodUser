@@ -90,7 +90,7 @@ class _WithDrawWalletScreenState extends State<WithDrawWalletScreen> {
                         color: Colors.black,
                         fontSize: 24,
                         fontWeight: null,
-                        text: 'Top up amount',
+                        text: 'Withdraw amount',
                       ),
                       Row(
                         children: [

@@ -1,8 +1,13 @@
 // ignore_for_file: prefer_const_constructors_in_immutables, prefer_const_constructors
 // ignore_for_file: prefer_const_literals_to_create_immutables
 import 'dart:io';
+import 'package:barg_user_app/widget/loadingPage.dart';
+import 'package:barg_user_app/widget/show_aleart.dart';
+import 'package:http/http.dart' as http;
+import 'package:barg_user_app/ipcon.dart';
 import 'package:barg_user_app/widget/auto_size_text.dart';
 import 'package:barg_user_app/widget/back_button.dart';
+import 'package:barg_user_app/widget/color.dart';
 import 'package:barg_user_app/widget/show_modol_img.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,8 +21,27 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
+  bool statusLoading = false;
   File? image;
   TextEditingController report = TextEditingController();
+
+  add_report() async {
+    final uri = Uri.parse("$ipcon/add_report");
+    var request = http.MultipartRequest('POST', uri);
+    var img = await http.MultipartFile.fromPath("img", image!.path);
+    request.files.add(img);
+    request.fields['solve_detail'] = report.text;
+    request.fields['solve_type'] = 'user';
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      setState(() {
+        statusLoading = false;
+      });
+      Navigator.pop(context);
+    } else {
+      print("Not upload images");
+    }
+  }
 
   pickImage() async {
     try {
@@ -54,46 +78,38 @@ class _ReportScreenState extends State<ReportScreen> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
+      backgroundColor: blue,
       body: Container(
         width: width,
         height: height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF73AEF5),
-              Color(0xFF61A4F1),
-              Color(0xFF478De0),
-              Color(0xFF398AE5)
-            ],
-          ),
-        ),
         child: SafeArea(
             child: SingleChildScrollView(
-          child: Column(
+          child: Stack(
             children: [
-              BackArrowButton(text: "Report", width2: 0.17),
-              buildImage(),
-              SizedBox(height: height * 0.035),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: height * 0.015, horizontal: width * 0.015),
-                child: Row(
-                  children: [
-                    AutoText(
-                   
-                      text: "Details Problem",
-                      fontSize: 18,
-                      color: Colors.white,
-                    
-                      fontWeight: FontWeight.w700,
+              Column(
+                children: [
+                  BackArrowButton(text: "Report", width2: 0.17),
+                  buildImage(),
+                  SizedBox(height: height * 0.035),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: height * 0.015, horizontal: width * 0.015),
+                    child: Row(
+                      children: [
+                        AutoText(
+                          text: "Details Problem",
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  buildInputBox(report),
+                  buildButtonSave()
+                ],
               ),
-              buildInputBox(report),
-              buildButtonSave()
+              LoadingPage(statusLoading: statusLoading)
             ],
           ),
         )),
@@ -204,13 +220,23 @@ class _ReportScreenState extends State<ReportScreen> {
             borderRadius: BorderRadius.all(Radius.circular(30)),
           ),
         ),
-        onPressed: () {},
+        onPressed: () {
+          if (image == null) {
+            buildShowAlert(context, "Please Choose Image");
+          } else if (report.text == "") {
+            buildShowAlert(context, "Please Insert Detail");
+          } else {
+            setState(() {
+              statusLoading = true;
+            });
+            add_report();
+          }
+        },
         child: Center(
           child: AutoText(
             color: Color(0xFF527DAA),
             fontSize: 14,
             text: 'Save',
-           
             fontWeight: FontWeight.bold,
           ),
         ),

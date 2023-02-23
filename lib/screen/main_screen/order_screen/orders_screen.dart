@@ -59,14 +59,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
           backgroundColor: Colors.white,
           elevation: 0,
-          actions: [
-            IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.search,
-                  color: Colors.black,
-                ))
-          ],
         ),
         body: Container(
           width: width,

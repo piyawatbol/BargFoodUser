@@ -28,7 +28,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
       },
       body: jsonEncode(<String, String>{
         'email': email.text,
-        'status_id': '2',
+        'status_id': '1',
       }),
     );
     var data = json.decode(response.body);

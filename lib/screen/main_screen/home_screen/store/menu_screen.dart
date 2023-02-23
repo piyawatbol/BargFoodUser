@@ -31,12 +31,9 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
- 
   List foodList = [];
   bool fav = false;
   String? user_id;
-
- 
 
   get_menu() async {
     final response =
